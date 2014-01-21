@@ -1,0 +1,29 @@
+#@ Amoebaes at war
+#@
+#@ You are the dominant life form on Jupiter's moon Io. Or rather,
+#@ /trying/ to become the dominant life form. To do this you must
+#@ spread out and capture as much of the land possible, establish 
+#@ front toward your enemy, and set up all your land to supply the front.
+
+-hill_tones 5
+-hill_color 0 255 170 130
+-hill_color 4 220 100 0
+-peak_bias 1.0
+-sea 3
+-sea_tones 5
+-sea_color 0 250 240 0
+-sea_color 4 220 210 0
+-trough_bias 0.8
+-color mark 170 0 0
+-farms 2
+-armies 8
+-cell 35
+-board 18
+-boardx 25
+-hex
+-para 5
+-para_cost 15
+-para_damage 6
+-attack
+-hills 3
+-map

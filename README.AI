@@ -1,0 +1,324 @@
+
+                 XBattle - AI 
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+1) PRELIMINARY
+
+2) SET UP A GAME WITH COMPUTER PLAYERS
+2.1) Command line
+2.2) Skill settings for Ai algo
+
+3) CREATING MAPS WITH NEW FEATURES
+3.1) Using the editor
+3.2) Loading maps
+
+4) THE VICTORY DETECTOR
+
+5) PLAYING THE GAUNTLET CAMPAIGN
+
+6) NOTES ABOUT THE FIRST ALGORITHM (by Mathias Broxvall)
+
+7) NOTES ABOUT THE SECOND ALGORITHM (by Pierre Bureau)
+
+8) NOTES ABOUT MULTIPLAYER GAMES OVER THE NET
+
+--------------------------------------------------------
+
+1) PRELIMINARY
+
+This file briefly describes the recent additions I have made to the 
+classic unix strategy game XBattle. In it's original form XBattle
+lacks all support for computer controlled players. Since I think
+XBattle is a fun and elegant game to play and since I often lack human
+opponents to play against (I have only played two games against humans - ever!)
+I decided to write an AI for the game. 
+
+
+
+2) SET UP A GAME WITH COMPUTER PLAYERS
+
+2.1) Command line
+
+A game with computer players is launched with exactly the same command line as a
+traditional Xbattle game except for two things.
+
+With traditional Xbattle settings, each player had to use a given display (not
+necessarily different for each player). That display would be used to open a
+game window. Now you can use the 'null' parameter for a computer player since a
+window is not needed.
+
+The -ai option is used to determine which army should be computer controlled.
+Syntax for this option is -ai <play> <algo> <skill> where:
+<play> is a player id
+<algo> is the ai algorithm to use
+<skill> is the skill for this computer player
+
+The player id varies from 0 to N-1, where N is the number of player. For a game 
+with three player (red, green and blue declared in this order on the command
+line), id for red is 0, id for green is 1, id for blue is 2.
+
+You can use two algorithm and each computer player can use a different one.
+Algorithm 1 is the original one by Mathias, and algorithm 2 is the second one
+by Pierre.
+
+See the next section for skill settings.
+
+The following example launches a game with two players; the first one is a
+computer player, the second one use the local display. The map will contain
+random towns and each player will control a random base.
+
+xbattle -red null -black :0.0 -ai 0 1 1.5 -towns 3 -rbases 1
+
+Furthermore it should be noted that it is possible to have several AI's in
+a game (even only AI players), all map types and all other options. 
+
+
+2.2) Skill settings for Ai algo
+
+Skill settings are different for each Ai algorithm.
+
+For Ai algo 1:
+The skill level mainly affects how many moves per timeunit the AI is allowed
+to make - a move is here an added or removed vector from a cell. Setting the
+skill level to 0.5 - 1.0 should be enough to provide a good challenge to 
+novice players. Higher skill levels means more moves and hence,
+a better opponent.
+
+For Ai algo 2:
+This algo is using skill level from 1 to 10. Each level defines a particular
+fighting style, usually the higher the better but some are really special. The
+following list describes the different skill levels available.
+ 
+ 1: Pacifist - average development rate but hardly attacks
+ 2: Trainee - slow development, average attack skill, good organisation
+ 3: Commander - slow development, good attack skill, good organisation
+ 4: Elite - good development, good attack skill, good organisation 
+ 5: Quick - fast extension, average attack
+ 6: Psyco - average development, frenetic attacks, Poor organisation
+ 8: Barbarian - fast development, fast attack, Poor organisation
+ 10: Ultimate - The Ultimate fighter (well, the best this algo can do)
+        
+Any other skill value will drop to default settings.
+
+
+
+3) CREATING MAPS WITH NEW FEATURES
+
+3.1) Using the editor
+
+The editor has been sligtly modified to enable the design of maps including
+forest cells and hill cells. Hills and forest have different effects on troop
+movement and combining the two is interesting (and maps look better as well).
+Random creation of maps using the two terrains is however not possible, you will
+have to edit your own maps (or play the campaigns).
+
+Another new feature is maps with towns owned by one side. These towns,
+or cities, produce troops for the owning side only. They are standard
+cells for all other sides.  Villages cannot be (FIXME: finish statement)
+
+Using the editor, if both options are enabled, press 'o' to create a forest
+cell. Then you can increase forest density with a middle click and decrease
+forest density with a left click. A right click will turn the cell back to a
+default cell.
+A default cell can be raised to a hill cell using middle click, or decreased to
+a sea cell using left click, as usual.
+
+If compiled with Base_Side support, press 'i' to change the side owning
+a base. The circle's color should change to a color somewhat similar to
+the owning side's color. Press 'i' to cycle throught sides and then
+switch back to a normal, plain town. The base side value is not reseted
+if you destroy the town. So that if the build option is enabled, later
+during the game, built cities will be owned by a player according to
+the base side value, regarless of who has built the city.
+
+All the other editor's options are unmodified.
+
+
+3.2) Loading maps
+
+If you have managed to edit your own map with the editor, it shouldn't be a
+problem to load it. You will still need to specify -hills and -forest options.
+If you don't, forest and hills will be displayed but will have no
+effect. There is no specific option to enable side-owned towns.
+Options for computer players stay the same.
+
+
+
+4) THE VICTORY DETECTOR
+
+We now have a somewhat more flexible victory detector which can be used to
+end the game with an exit code when a player has won. If the N'th player
+(counting from zero) wins the game it exits with an exit code of 10+n. This
+victory detector can thus be used to automate a sequence of XBattleAI games
+through for instance a bash script. The options from which victories can be 
+composed of are as follows:
+FIXME: side or player?
+     -win_trad   like the ai2 victory module, all others are wiped out
+     -win_land   player needs to occupy a percentage of cells
+                 (FIXME: also sea cells!)
+     -win_army   player needs to have a percentage of all armies
+     -win_timeout player wins after the game has run for n turns.
+     -win_pos    player wins if she occupies the position.
+                 (if several positions are given, all must be occupied)
+     -win_wait   wait n turns after a victory before exiting.
+                 the winning player need to fulfill a victory
+                 condition all n turns. (Default 10)
+Victory conditions can be set per player or for all players. If several 
+conditions are set for the same player, the player will win if any 
+of them is satisfied. For instance:
+
+   Emulate the ai2 victory module (-win_wait 10 is default):
+   xbattle ... -win_trad
+
+   Exit game after 200 turns (there will be a draw):
+   xbattle ... -win_timeout 200
+
+   Player 1 wins by reaching the upper left corner, player 2 wins by
+   keeping him out for 300 turns:
+   xbattle ... -red { -win_pos 0 0 } foo:0 -blue { -win_timeout 300 } bar:0
+
+   Like the previous example, but both sides can also win by exterminating
+   the opponent:
+   xbattle ... -red { -win_pos 0 0 } foo:0 -blue { -win_timeout 300 } bar:0 -win_trad
+
+
+
+5) PLAYING THE GAUNTLET CAMPAIGN
+
+The Gauntlet Campaign is a series of predefined battles, taking place in a
+fantasy world. For now a quick preview only is included. You will have to win
+the three battles in a row (except if you edit the script).
+
+To play the campaign just run the 'GauntletCampaign.sh' script from a terminal
+and read instructions. The working directory needs to be the one containing the
+script file and the GauntletCampaign/ directory (or the script won't find level
+files) (this will be improved as well).
+
+The default skill for the campaign is set to 2 (trainee) for beginer players. If
+you are already familiar with Xbattle you can pass an alternative skill level to
+the script using:
+
+  GauntletCampaign.sh <skill>
+  
+For average players 3-4 (commander or elite) should be a decent challenge
+For the most skillful 8-10 (barbarian or ultimate) should do the job 
+
+
+
+6) NOTES ABOUT THE FIRST ALGORITHM (by Mathias Broxvall)
+
+The current state of the AI is quite rudimentary, the
+algorithms used are extremly simple and there are no
+support for using guns/paratropers/building bases/raising
+and lowering land etc... But still, the AI works well to
+play against in it's current form and there are no big 
+feeling that the AI somehow 'cheats'. 
+
+NEW: The AI now uses guns if allowed with the '-guns <range>' flag.
+
+
+
+7) NOTES ABOUT THE SECOND ALGORITHM (by Pierre Bureau)
+
+This algorithm lacks support for most Xbattle special options such as paratroops
+and guns. It still needs improvements and will probably always need improvements
+anyway.
+
+The algo is based on three different routines, the development, the
+reorganisation, and the attack.
+
+The development routine search for free supplies around the controlled cells,
+try to find a valid route from the supply to any controlled cell, and then rush
+to the valuable ressource.
+It also manage regular extension, when the territory is a bit packed (it is
+always good to store more troops).
+
+The reorganisation routine use a scan algorithm to connect cells in contact with
+an enemy (front cells) to the layer of cells right behind them. And then to
+connect the second layer of cells to the third, and so on util all controlled
+cells have been scanned. This ensure that troops will move where they are most
+needed... the front..
+A big improvement required is to detect enemy from a given distance. In the
+present state, the algorithm will not detect enemy until contact.
+
+The attack routine is the a bit more complex. It will scan the enemy territory
+for towns, it will search for the best route to attack enemy towns and then
+eventually attack the most interesting ones (using a ratio 'size of the town'
+versus 'number of defending troops'). Some other attacks can be declared on any
+cells if available troop to attack are far bigger than the one defending the
+target cell.
+The other task for this routine is to monitor attacks, looking at the defending
+troops variations (do they decrease) and comparing available troops with number
+of defending troops, the algo will decide if the attack can continue or if must
+be canceled.
+
+Quite a few changes are already ongoing... but the algo is already not so easy
+to beat. At higher level, the main challenge is the speed. The algo development
+is too quick for a standard, non-cyberboosted human.
+
+
+8) NOTES ABOUT MULTIPLAYER GAMES OVER THE NET
+
+A client/server architecture is currently being added to XBattleAI so that 
+multiplayer games can be player over networks too slow to allow realtime 
+X-forwarding. A game of XbattleAI can now consist of one or several running
+instances of the program on different computers. One of the computers should be
+designated the server and it can have one or several players connected to it
+in the normal way using multiple X11 displays. A number of client instances of 
+xbattleai can connect to the server and play. Since the clients maintain their
+own displays the need for a *fast* connection between the players is not as big.
+The current implementation of the network code is quite rudimentary and therefore
+a lot of data still has to be sent among the players (~2k bytes/second) but this
+should still be enough of an improvement to enable internet play.
+
+When starting a game of XBattleAI on several computers the server should be started
+first. Apart from all the displays controlled directly by the server, this player 
+should also include the "-is_server" directive for each remotly controlled player.
+Each remote player should start XBattleAI with all options except players and their
+displays (and of course without the -is_server directive!) identical to 
+that used by the server. Furthermore, they should specify the server to which they
+wish to connect using the "-use_server" directive.
+
+Some examples might demonstrate this better. In this example we assume that 
+Adam,Bertil,Ceasar etc are names of computers.
+
+Ada> xbattle -red :0 -blue { -is_server 8000 } null -rbases 3 -hills 5 -sea 3
+Bertil> xbattle -red null -blue :0 -use_server Ada 8000 -rbases 3 -hills 5 -sea 3
+
+This starts a simple game between the two players sitting on Ada and Bertil.
+
+Ada> xbattle -red :0 -blue null -green { -is_server 8000 } null -yellow Ceasar:0.0 \
+-ai 1 1 0.5 -rbases 3 -hills 5 -sea 3
+
+Bertil> xbattle -red null -blue null -green :0.0 -use_server Ada 8000 -yellow null -rbases 3 -hills 5 -sea 3
+
+This starts up xbattle with four players. A human player at Ada and one at Ceasar (controlled
+through X-forwarding to Ada) as well as a remote one at Bertil. Furthermore, there is one 
+computer controlled opponent which is controlled by the ai at Ada.
+
+Note that although the -ai option is not given to Bertil it is still possible to have
+remotly controlled ai's as given below:
+
+Ada> xbattle -red :0 -blue { -is_server 8000 } null -rbases 3 -hex -hills 14
+Bertil> xbattle -red null -blue null -ai 1 2 8 -rbases 3 -hex -hills 14
+
+TODO. Threading the network code, handling victory detection correctly.
+displaying pipes on "clients",  displaying events such as battles,
+guns etc. correctly. Easier commandline.
+
+(FIXME: Couldn't we just send the keyboard and mouse command from one client
+to another (and rand() seed... maybe implement our own rand() since it might
+be different on each box)?  That would be _very_ low bandwidth and we wouldn't
+have to worry about byte-swapping and word sizes.)
+
+------------------------------------------------------------------
+
+
+Have fun playing it and don't hesitate to contact me for comments,
+improvements, suggestions etc...
+
+/ Mathias Broxvall (matbr@home.se)
+& Pierre Bureau (pierro.buro@free.fr)
+
+
+

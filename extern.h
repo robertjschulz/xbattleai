@@ -1,0 +1,476 @@
+#ifndef INCLUDED_EXTERN_H
+#define INCLUDED_EXTERN_H
+
+/* Note. Changes made 2000-09-08 to add fields needed by the AI in structures
+   -- Mathias Broxvall
+
+   For changes: Copyright (c) 2000 - Mathias Broxvall
+   other parts of file copyrighted as per the file "COPYRIGHT"  
+   */
+#include <stdio.h> /* for FILE type */
+#include <X11/Xlib.h> /* for X types */
+#include "constant.h" /* for array bounds */
+
+#include "macro.h"
+
+
+typedef unsigned char	n_char;
+typedef signed char	s_char;
+
+/**** window structure ****/
+
+typedef struct
+{
+    Display 		*display;
+    Window 		window;
+    Window 		drawable;
+    XFontStruct 	*font_struct;
+    GC 			*hue,
+                        *hue_inverse,
+                        *hue_terrain,
+                        *hue_mark,
+                        gc_flip,
+                        gc_clear,
+                        gc_or;
+    Pixmap		*terrain[MAX_SHAPES],
+			work_space,
+			backing_space;
+    Colormap 		cmap;
+    int			use_new_colormap;
+    XPoint		size_window,
+			size_play,
+			size_text,
+			offset_play,
+			offset_text;
+    int 		depth,
+                        screen;
+    int			open,
+                        watch,
+                        player;
+    int			text_y_pos[MAX_PLAYERS];
+    char		draw_letter[MAX_SIDES+1];
+    char		letter[MAX_SIDES+1][2];
+    unsigned long	char_width, char_height;
+    char		display_name[80];
+#ifdef WITH_HILLS_AND_FOREST
+    /* P.Bureau - New variables to enable forest and hills on the
+     *            same map.
+     */
+    GC                  *hue_forest;
+    Pixmap              *forest[MAX_SHAPES];
+#endif
+#ifdef WITH_BASE_SIDE
+    GC                  *hue_base;
+#endif
+} xwindow_type;
+
+typedef struct ai1_struct ai1_type;
+typedef struct ai2_struct ai2_type;
+typedef struct CellType   cell_type;
+
+/**** game cell structure ****/
+struct CellType
+{
+    s_char 		level;			/** load assured **/
+#ifdef WITH_HILLS_AND_FOREST
+    s_char              forest_level;           /** load assured **/
+#endif
+    s_char 		growth;			/** load assured **/
+    s_char 		old_growth;		/** load assured **/
+    short		angle;			/** load assured **/
+    s_char 		x, y;			/** load assured **/
+    s_char 		side;
+#ifdef WITH_BASE_SIDE
+    s_char              base_side;
+#endif
+    s_char 		move;
+    s_char		any_march;
+    s_char		march_side;
+    s_char		march_count;
+    s_char		side_count;
+    s_char		lowbound;
+    s_char		manage_update;
+    s_char		manage_x, manage_y, manage_dir;
+    s_char	 	old_side;
+    s_char		age;
+    s_char		shape_index; /* FIXME: should this be in the assured section? */
+    s_char		redraw_status;
+    s_char		outdated;
+    s_char		old_value;
+    s_char 		*dir;
+    s_char		*march;
+    s_char		*march_type;
+    s_char		*march_dir;
+    s_char 		*value;
+    s_char		*seen;
+    s_char		*draw_level;
+    cell_type		*connect[MAX_DIRECTIONS];
+    short		*x_center;
+    short		*y_center;
+
+    ai1_type		*ai1;
+    ai2_type		*ai2;
+};
+
+
+typedef struct
+{
+    int			build_count,
+			troop_count,
+			cell_count;
+} statistic_type;
+
+
+typedef struct
+{
+    XPoint		center_bound,
+			center_erase,
+			center_vertex,
+			center_rectangle,
+			corner_erase,
+			corner_vertex,
+			size_bound,
+			size_erase,
+			size_rectangle,
+			helper;
+
+
+    short		max_value,
+			max_max_value,
+			troop_to_size[MAX_MAXVAL],
+			growth_to_radius[TOWN_MAX+1],
+			circle_bound,
+			side,
+			area;
+
+    n_char 		direction_count,
+			direction_factor,
+			angle_offset,
+			use_secondary;
+
+    n_char 		troop_shape,
+			erase_shape,
+			copy_method,
+			erase_method;
+
+    short		horizon_even[200][2], horizon_odd[200][2], /* FIXME: why 200? */
+			horizon_counts[10]; /* FIXME: why 10? */
+
+    n_char 		point_count;
+    XPoint		points[MAX_POINTS];
+
+    XPoint		arrow_source[MAX_DIRECTIONS][2][3], /* FIXME: what are 2, 3, and 4? */
+			arrow_dester[MAX_DIRECTIONS][2][3],
+			arrow_source_x[MAX_MAXVAL][MAX_DIRECTIONS][2],
+			arrow_dester_x[MAX_MAXVAL][MAX_DIRECTIONS][2],
+			march_source[MAX_DIRECTIONS][4],
+			march_dester[MAX_DIRECTIONS][4];
+
+    s_char		chart[2*MAX_CELLSIZE][2*MAX_CELLSIZE][2]; /* FIXME: why 2xMAX? */
+} shape_type;
+
+typedef struct
+{
+    short		size_x, size_y;	
+
+    int			cell_count;
+    cell_type		*cells[MAX_BOARDSIZE][MAX_BOARDSIZE],
+			*list[MAX_BOARDSIZE*MAX_BOARDSIZE];
+
+    short		shape_count;
+    shape_type		*shapes[MAX_SIDES][MAX_SHAPES];
+
+    XPoint		size[MAX_SIDES];
+} board_type;
+
+
+typedef struct
+{
+  XPoint		matrix[4*MAX_CELLSIZE][4*MAX_CELLSIZE]; /* FIXME: so large? */
+  XPoint		dimension,
+			multiplier,
+			offset;
+} select_type;
+
+
+typedef struct
+{ 
+  n_char		enable_all[OPTION_COUNT], 
+			enable[OPTION_COUNT][MAX_SIDES];
+ 
+  int			value_int_all[OPTION_COUNT],
+			value_int[OPTION_COUNT][MAX_SIDES]; 
+  double		value_double_all[OPTION_COUNT],
+			value_double[OPTION_COUNT][MAX_SIDES]; 
+
+  short			side_count,
+			player_count,
+			load_side_count,
+			hue_count,
+			bw_count,
+			direction_count;
+
+  short			player_to_side[MAX_PLAYERS],
+			side_to_hue[MAX_SIDES],
+			side_to_bw[MAX_SIDES],
+			hue_to_inverse[MAX_HUES],
+			bw_to_inverse[MAX_BWS];
+  char			side_to_letter[MAX_SIDES][2],
+			side_to_hue_name[MAX_SIDES][MAX_NAME],
+			side_to_bw_name[MAX_SIDES][MAX_NAME];
+
+  char			hue_name[MAX_HUES+1][MAX_NAME];
+  n_char		palette[MAX_HUES+1][3];
+  short			palette_forest[MAX_FOREST_TONES][3],
+			palette_hills[MAX_HILL_TONES][3],
+			palette_sea[MAX_FOREST_TONES][3];
+  n_char		palette_gray[MAX_BWS+1][8];
+  n_char		hue_has_bw[MAX_HUES+1];
+
+  char			message_all[MAX_TEXT],
+			message_single[MAX_PLAYERS][MAX_TEXT];
+
+  char 			file_store[MAX_NAME],
+			file_replay[MAX_NAME],
+			file_map[MAX_NAME],
+			file_store_map[MAX_NAME];
+  n_char		use_brief_load;
+
+  int			max_value[MAX_SIDES],
+			max_max_value,
+			text_offset,
+			delay,
+			fill_number,
+			tile_type,
+			level_min,
+                        level_max;
+
+#ifdef WITH_HILLS_AND_FOREST
+int                     forest_level_max;
+#endif
+
+  short			board_x_size,
+			board_y_size,
+			center_size,
+			march_size,
+			text_size,
+  			cell_size[MAX_SIDES];
+
+  int			view_range[MAX_SIDES],
+			view_range_max;
+
+  n_char		is_paused;
+
+  int			dir[MAX_PLAYERS][MAX_DIRECTIONS], /* remember for right click */
+       		        dir_type[MAX_PLAYERS],
+       		        dir_factor[MAX_PLAYERS];
+
+  int			old_x[MAX_PLAYERS],
+			old_y[MAX_PLAYERS];
+
+  short                 in_message[MAX_PLAYERS]; /* remember for message command */
+
+  char			font[200];
+
+  double		*move_slope[MAX_SIDES],
+			move_hinder[MAX_SIDES][MAX_HILL_TONES+1],
+			move_shunt[MAX_SIDES][MAX_MAXVAL+2],
+			move_moves[MAX_DIRECTIONS+1];
+
+  FILE			*fp; /* FIXME: delete me */
+
+  select_type		*selects[MAX_SIDES];
+
+  statistic_type	*stats[MAX_SIDES];
+
+  short                 ai_algo_id[MAX_PLAYERS]; /* algorithm for AI players, 0==user */
+  double                ai_skill[MAX_PLAYERS]; /* algorithm skill level */
+
+/* Steinar Hamre - new victory detector */
+  int                   victory_traditional[MAX_SIDES],
+                        victory_timeout[MAX_SIDES],
+                        victory_positions[MAX_SIDES],
+                        victory_position[MAX_SIDES][MAX_VICTORY_POSITIONS][2];
+  double                victory_army_ratio[MAX_SIDES],
+                        victory_land_ratio[MAX_SIDES];
+  char                  *victory_string_army[MAX_SIDES],*victory_string_land[MAX_SIDES],
+	*victory_string_timeout[MAX_SIDES], *victory_string_position[MAX_SIDES][MAX_VICTORY_POSITIONS];
+	
+
+/* M. Broxvall - configuration when acting as client */
+  char                  server_name[256];
+  short                 server_port, player_no;
+  int                   socket_fd;
+} config_info;
+
+typedef struct
+{
+  int num_clients;
+  int socket[MAX_SIDES];
+} server_info;
+
+
+/**** Externs for program global variables ****/
+
+/* main.c */
+extern xwindow_type	*XWindow[MAX_PLAYERS];
+extern board_type	*Board;
+extern config_info	*Config;
+/* saved_environment is just externed in error.c */
+
+
+/**** Exported prototypes ****/
+
+/* main.c */
+extern cell_type *get_cell(int win_x, int win_y, int dir[MAX_DIRECTIONS], int side, int shift);
+extern int remove_player (int current_player);
+extern void run_unix_loop (void);
+
+/* edit.c */
+extern void edit_board (void);
+
+/* init.c */
+extern void init_board (void);
+extern void free_board(void);
+
+/* draw.c */
+extern void draw_board (int current_player, int justboard);
+extern void draw_partial_board (int current_player, int xmin, int ymin, int xmax, int ymax, int justboard);
+extern void draw_multiple_cell (cell_type *cell);
+extern void draw_cell (cell_type *cell, int player, int use_full);
+extern void draw_shell (cell_type *cell, int player, int source_side);
+extern void draw_chute (cell_type *cell, int player, int source_side);
+extern int draw_message (char text[], int textcount, int new_side, int current_player);
+extern void draw_timer (unsigned long running_time, int player);
+
+/* load.c */
+extern void dump_board (char const filename[], int use_brief);
+extern void load_board (char const filename[], int use_brief);
+extern void load_board_header (FILE *fp);
+extern void load_board_cells (FILE *fp, int use_brief);
+
+/* parse.c */
+extern int load_options (int argc, char * const argv[]);
+extern void free_options(void);
+extern void init_defaults (void);
+extern void free_config(void);
+
+/* replay.c */
+extern void store_draw_cell (cell_type *cell, FILE *fp);
+extern void replay_game (FILE *fp);
+extern void store_parameters (FILE *fp);
+extern void load_parameters (FILE *fp);
+extern void game_stats (void);
+
+/* update.c */
+extern void update_board (void);
+extern void update_cell_growth (cell_type *cell);
+extern void update_cell_decay (cell_type *cell);
+extern void update_cell_erode (cell_type *cell);
+extern void update_cell_fight (cell_type *cell);
+extern int is_visible (cell_type *cell, int active_side);
+extern void update_cell_horizon (cell_type *base_cell, int current_side);
+extern void update_cell_clean (cell_type *cell);
+extern void set_move_on (cell_type *cell, const int dir[MAX_DIRECTIONS], const int count);
+extern void set_move_off (cell_type *cell, const int dir[MAX_DIRECTIONS], const int count);
+extern void set_move (cell_type *cell, const int dir[MAX_DIRECTIONS], const int factor);
+extern void set_move_force (cell_type *cell, const int dir[MAX_DIRECTIONS], const int factor);
+
+/* victory.c */
+extern void victory_add_position(int side, short x, short y, int is_enabled, char*);
+extern void victory_defaults(void);
+extern void victory_init(void);
+extern void victory_check(void);
+
+/* util.c */
+#ifdef UNUSED
+extern int match_color (int red, int green, int blue);
+#endif
+extern int match_color_name (char const *color_name, int default_hue);
+extern int matchstr (char const line[], char const word[]);
+extern int get_random (int base);
+
+/* window.c */
+extern void open_xwindow (xwindow_type *xwindow, char const *hue_title, char const *bw_title);
+extern void close_xwindow (xwindow_type *xwindow);
+
+/* command.c */
+extern void run_shoot(cell_type *cell, int side, int x, int y, int calc, int is_artillery);
+extern void run_attack(cell_type *cell, int side);
+extern void run_zero(cell_type *cell);
+extern void run_march (cell_type *cell, int player, int side, int x, int y,
+		int button, int tdir[MAX_DIRECTIONS]);
+extern void run_dig (cell_type *cell);
+extern void run_fill (cell_type *cell);
+extern void run_scuttle (cell_type *cell);
+extern void run_build (cell_type *cell, int side);
+extern void run_reserve (cell_type *cell, int player, int side, char text[]);
+
+/* error.c */
+extern int my_error_handler (Display *my_display, XErrorEvent *my_error);
+extern int my_io_error_handler (Display *my_display);
+extern void throw_error (char const *control_string, char const *parameter_string);
+extern void throw_warning (char const *control_string, char const *parameter_string);
+
+/* shape stuff */
+extern void shape_initialize (void);
+void shape_free (void);
+extern void shape_set_draw_method (shape_type *shape, int side, int disallow_pixmap);
+extern void shape_set_growth (shape_type *shape);
+extern void shape_set_troops (shape_type *shape);
+extern void shape_set_arrows (shape_type *shape, int offset);
+
+/* shape_hex.c */
+extern void hex_set_dimensions(shape_type *shape, int cell_size, int side);
+extern void hex_set_center(cell_type *cell, shape_type *shape, int side);
+extern void hex_set_connections(void);
+extern void hex_set_horizons(shape_type *shape);
+extern void hex_set_selects (shape_type *shape, select_type *select, int side);
+
+/* shape_square.c */
+extern void square_set_dimensions(shape_type *shape, int cell_size, int side,
+		                           int use_circle);
+extern void square_set_center(cell_type *cell, shape_type *shape, int side);
+extern void square_set_connections(void);
+extern void square_set_horizons(shape_type *shape);
+extern void square_set_selects (shape_type *shape, select_type *select, int side);
+
+/* shape_diamond.c */
+extern void diamond_set_dimensions(shape_type *shape, int cell_size, int side);
+extern void diamond_set_center(cell_type *cell, shape_type *shape, int side);
+extern void diamond_set_connections(void);
+extern void diamond_set_horizons(shape_type *shape);
+extern void diamond_set_selects (shape_type *shape, select_type *select, int side);
+
+/* shape_triangle.c */
+extern void triangle_set_dimensions(shape_type *shape, int cell_size, int side,
+		                             int point_up);
+extern void triangle_set_center(cell_type *cell, shape_type *shape1,
+		                         shape_type *shape2, int side);
+extern void triangle_set_connections(void);
+extern void triangle_set_horizons(shape_type *shape, int point_up);
+extern void triangle_set_selects (shape_type *shape, select_type *select, int side);
+
+/* shape_octagon.c */
+extern void octagon_set_dimensions(shape_type *shape, int cell_size, int side);
+extern void octagon_set_center(cell_type *cell, shape_type *shape1,
+		                        shape_type *shape2, int side);
+extern void octagon_set_connections(void);
+extern void octagon_set_horizons(shape_type *shape1, shape_type *shape2);
+extern void octagon_set_selects (shape_type *shape1, shape_type *shape2,
+		                          select_type *select, int side);
+extern void octagon_set_square_troops(shape_type *shape1, shape_type *shape2);
+
+
+/* sound events */
+extern void snd_init(void);
+extern void snd_close(void);
+
+extern void snd_fight(void);
+extern void snd_attack(void);
+extern void snd_gun(void);
+extern void snd_para(void);
+extern void snd_town(void);
+extern void snd_march(void);
+
+#endif /* INCLUDED_EXTERN_H */

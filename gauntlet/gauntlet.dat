@@ -1,0 +1,252 @@
+xbstorystart1
+Around Orizan, a border city of the North march, rumors of raids
+from the Wasted Land have grown bigger and bigger during the last
+couple of months. And now from the forest north of the city,
+horrified farmers report a quite impressive Barbarian army marching
+toward Orizan. The imperial army prepares to face this new raid.
+xbstorystop1
+
+xbtipstart1
+-Use the attack command for massive attacks (aim tgt cell+press a)
+-Use the repeat command for quick march (right click)
+-Forest slows down troops
+-The forest is full of small villages, take control of them...
+-You now the terrain, but not where your enemy is...
+xbtipstop1
+
+xblevel1= level1
+xboption1= -horizon 3 -win_trad -win_wait 3
+xbcell1= big
+xbnextwin1= 2 xbnextlost1= 3
+
+/-----------------------------------------------------------------/
+
+xbstorystart2
+The raid on Orizan has been defeated, but the Barbarians are
+surprisingly well organized and numerous. This raid was probably
+the first wave of a bigger invasion scheme. A large army is
+rushing into the North march, the Imperial 13th elite Corp has
+been sent to stop the barbarians. The battle will take place on
+the wide plain of Larmiz, which is quite densely populated.
+xbstorystop2
+
+xbtipstart2
+-Use the attack command for massive attacks (aim tgt cell+press a)
+-Use the repeat command for quick march (right click)
+-Take control of all the towns
+-Higher cells are hard to attack and easy to defend
+xbtipstop2
+
+xblevel2= level2
+xboption2= -horizon 2 -win_trad -win_wait 3
+xbcell2= big
+xbnextwin2= 4 xbnextlost2= 6
+
+/-----------------------------------------------------------------/
+
+xbstorystart3
+The barbarian troops have surrounded and overcome Orizan. Motivated
+by this victory, barbarians are now marching toward the stronghold
+of Epinem, which is protecting the main access to the empire's capital.
+The imperial stronghold is well prepared and is hosting a large army.
+However, a defeat shall be fatal to the realm... 
+xbstorystop3
+
+xbtipstart3
+-Use the attack command for massive attacks (aim tgt cell+press a)
+-Use the repeat command for quick march (right click)
+-Your army is larger, attack is the best defense
+-Higher cells are hard to attack and easy to defend
+xbtipstop3
+
+xblevel3= level1.2
+xboption3= -horizon 4 -win_trad -win_wait 3
+xbcell3= big
+xbnextwin3= 2 xbnextlost3= -2
+
+/-----------------------------------------------------------------/
+
+xbstorystart4
+After the Larmiz plain victory, imperial scouts have spotted a
+large barbarian camp, right on the border of the North March.
+Usually, tribes don't gather in such a big and well organized
+army. This is a very serious matter for the Emperor. To
+definitively stop this invasion attempt, imperial commanders have
+decided to attack and destroy the barbarian camp, which is protected
+by a row of high hills
+xbstorystop4
+
+xbtipstart4
+-Use the attack command for massive attacks (aim tgt cell+press a)
+-Use the repeat command for quick march (right click)
+-Terrain is unknown, explore as fast as you can
+-You will need supply to survive, take control of towns
+xbtipstop4
+
+xblevel4= level3
+xboption4= -localmap -map -horizon 3 -win_trad -win_wait 3
+xbcell4= big
+xbnextwin4= 5 xbnextlost4= 5
+
+/-----------------------------------------------------------------/
+
+xbstorystart5
+Reports from the expedition against the barbarian camp are pretty bad.
+Evidences of a very unusual coalition between various barbarian tribes
+have been found and barbarians are motivated with a surnatural fury.
+Several flags and painted shields are decorated with a Red Gauntlet
+symbol, which is unknown to the Emperor's wisest advisors. This could
+be the symbol of a new leader, if he or she could succeed to gather all
+the tribes together, this would be a great threat to the Empire.
+
+The massive imperial army has been ordered to march toward the north.
+As soldiers are gathering in the North March, on the other side of the
+frontier, numerous barbarian tribes are gathering as well, preparing
+for war. But before fortifications and camps are fully settled,
+imperial scouts report sudden offensive moves. Barbarians are attacking
+a incomplete imperial defensive line.
+xbstorystop5
+
+xbtipstart5
+-Gather troops before attacking
+-Use reserve command to hold a perimeter (aim tgt cell+press 1-10)
+-The defensive line is still under construction, you can build up to 4
+ new camps. Use (aim tgt cell+press b) to build one fourth of a city.
+xbtipstop5
+
+xblevel5= level4
+xboption5= -build 4 -build_cost 10 -build_limit 4 -horizon 3 -win_trad -win_wait 3
+xbcell5= small
+xbnextwin5= 8  xbnextlost5= 7
+
+/-----------------------------------------------------------------/
+
+xbstorystart6
+The Imperial 13th elite Corp has failed to stop the barbarian army. A
+quite large barbarian horde is now controlling part of the Larmiz
+plain. The emperor himself has ordered an assault against the horde,
+none of the invaders shall survive.
+A mighty army, coming from the empire's capital, is now ready to
+execute the emperor's will and exterminate invading barbarians.
+xbstorystop6
+
+xbtipstart6
+-You know the terrain, but barbarians troops are around
+-Use reserve command to hold a perimeter (aim tgt cell+press 1-10)
+xbtipstop6
+
+xblevel6= level2.2
+xboption6= -horizon 3 -win_trad -win_wait 3
+xbcell6= small
+xbnextwin6= 4  xbnextlost6= -2
+
+/-----------------------------------------------------------------/
+
+xbstorystart7
+The defensive line was too weak to hold barbarian assault. Several
+small desorganised bands have successfully penetrated into the Larmiz
+plain. A quite large imperial division has been sent to stop them. As
+the reaction had to be very quick, imperial commander is not
+particularly familiar with the map and he is discovering the land
+around the city of Jakmil while barbarians are taking control of the
+land.
+xbstorystop7
+
+xbtipstart7
+-expand as quickly as you can
+-Use reserve command to hold a perimeter (aim tgt cell+press 1-10)
+xbtipstop7
+
+xblevel7= level4.2
+xboption7= -horizon 4 -map -localmap -win_trad -win_wait 3
+xbcell7= big
+xbnextwin7= 10 xbnextlost7= 9
+
+/-----------------------------------------------------------------/
+
+xbstorystart8
+The assault against the defensive line has been defeated. An imperial
+detachment has decided to chase barbarians quite far away in the north.
+They are exploring uncontrolled territory, where barbarian camps may be
+anywhere. Scouts are reporting much stronger forces than expected, and
+the imperial troops have to fight in an unknown territory, with little
+hope of success. They will hold as long as they can.
+xbstorystop8
+
+xbtipstart8
+-expand fast, try to create a defensive line, and hold it.
+-Use reserve command to hold a perimeter (aim tgt cell+press 1-10)
+-Survive 100 turns for victory.
+xbtipstop8
+
+xblevel8= level4.1
+xboption8= -horizon 3 -map -localmap -win_timeout 100
+xbcell8= big
+xbnextwin8= 10  xbnextlost8= 10
+
+/-----------------------------------------------------------------/
+
+xbstorystart9
+The barbarian army is now settled in the Larmiz plain. Camps and raw
+fortifications have been built. To take back control of the Larmiz
+plain, Imperial troops must destroy the main barbarian camp in the
+center of the land. Massive forces are sent to fulfill this task and
+the barbarian camp is soon surrounded.
+This is the final assault against the fortified place. 
+xbstorystop9
+
+xbtipstart9
+- Barbarian towns will not produce imperial troops, they are displayed
+  using a different color.
+- You can destroy any town using (aim tgt cell+press s)
+- Several stroke (aim tgt cell+press s) may be necessary to fully
+  destroy a town.
+xbtipstop9
+
+xblevel9= level4.3
+xboption9= -scuttle 10 -scuttle_cost 5 -win_trad -win_wait 3 -horizon 3
+xbcell9= big
+xbnextwin9= 10 xbnextlost9= -2
+
+/-----------------------------------------------------------------/
+
+xbstorystart10
+Both armies are now prepared, on each side of the empire's border,
+countless troops are ready for the battle coming. The well ordered
+Imperial army is facing a huge, blood thirsty, barbarian horde. The
+battle will take place in a vast plain, between the two fortified
+camps. Victory is the only mean to prevent the horde from devastating
+the empire.
+On a cold but sunny morning, the assault begins...
+xbstorystop10
+
+xbtipstart10
+-Use reserve command to hold a perimeter (aim tgt cell+press 1-10)
+-You can destroy one fourth of any town using (aim tgt cell+press s)
+-Barbarian towns will not produce imperial troops, they are displayed
+ using a different color.
+-Imperial towns will neither produce barbarian troops, they can be
+ damaged by the enemy and eventually repaired using (aim tgt cell+press s)
+-You can build up to 2 new camps. Use (aim tgt cell+press b) to build
+ one third of a city. 
+xbtipstop10
+
+xblevel10= level5
+xboption10= -horizon 4 -map -localmap -scuttle 4 -scuttle_cost 5 -build 3 -build_cost 10 -build_limit 2 -win_trad -win_wait 3
+xbcell10= small
+xbnextwin10= -1 xbnextlost10= -2
+
+/-----------------------------------------------------------------/
+
+xbstorystart
+
+xbstorystop
+
+xbtipstart
+
+xbtipstop
+
+xblevel=
+xboption=
+xbcell=
+xbnextwin=  xbnextlost=

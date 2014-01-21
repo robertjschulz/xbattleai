@@ -1,0 +1,136 @@
+
+Small and Medium Tasks
+======================
+
+ - In the tcl/tk scripts, compute the correct share dir!
+
+ - Use classnames (PseudoColor, TrueColor, StaticColor, StaticGray,
+   GrayScale, DirectColor) instead of guessing from the displaydepth.
+   (We can only test on PseudoColor, TrueColor and perhaps 
+   StaticGray/GrayScale).
+
+ - Rewrite NEW_COLORMAP-code to be fully dynamic, that is first try to
+   use the system colormap, and then switch to private colormap only if
+   not enough colors available.
+
+ - Parameterise AI and automate fine tuning. Currently there are about
+   40 (!) floatingpoint parameters for the AI.  (Maybe have file load/
+   dump routines for it?)
+
+ - Fix option demands for "-replay"
+
+ - Additional maptypes (regional maps a la' risk)
+
+ - Threading the network code
+
+ - Handling victory detection correctly in network games
+
+ - Making a "game launcher"
+
+ - A fullscreen mode?
+
+ - Figure out area ratio constants for all shapes.
+
+ - Sanity check all options like max_maxval.
+
+ - Fix window positioning (auto and manual).
+
+ - Make player type and move some members from window type and
+   Config into it.
+
+ - -win_land should not count sea cells.
+
+ - Add dump/load interface using buffers.
+
+ - Trees with hills auto map generation (handle like trees or
+   Maybe it should be more indepenent of elevation).
+
+ - Decay and farms verying from cell to cell.  Nice for saved
+   maps and auto-generated maps.
+
+ - Remove more temp char arrays in code.
+
+ - Optimize messaging code to not need so many arrays, make defines
+   for array lengths.
+
+ - Change game server to allow more than one client per listening
+   socket.
+
+ - Decide on code formatting style and make it consistant.  Most
+   code is currently (I think this was Steve's or Greg's style):
+    * 2-space indent
+    * double-star, whole-line comments
+    * blank line after whole-line comments
+    * begin curly on the next line
+    * blank lines between local variable declarations,
+    * space after function name (call and declaration)
+    * space after flow-control operator (if, while, for)
+    * function return type on separate line.
+   (Close to my style but I like four-space indents and no spaces
+   after function names.)
+
+ - Add command-line option to print version (maybe use Makefile
+   rule to create version.h from VERSION).
+
+ - Remove some conditionally-compiled code which shouldn't be
+   disabled at compile time (i.e. make timer a run-time option,
+   delete USE_UNIX, etc.).
+
+ - Get rid of Config->fp.
+
+ - Clarify handling of brief flags (should the file or the
+   command-line have the final say?).
+
+
+Large Tasks
+===========
+
+ - Improve AI.
+
+ - Try to keep the X stuff separate from game-logic.
+
+ - Client Server version (wow... not so much forever anymore!).
+
+ - Maintain/Improve website.
+
+ - Add an abstraction-layer for color handling and greatly
+   simplify window.c and draw.c.
+
+ - Allow joining games already in progress (game server would
+   require a password or something).
+
+ - Allow textures on maps so they can look more like real terrain.
+
+ - Allow icons to represent bases, towns, victory positions, etc.
+
+ - Allow maps larger than a window.  Some kind of scrolling
+   mechanism will be needed.  Maybe make a mini-map in the corner
+   or in a separate window.  Maybe use arrow keys or make scroll-
+   bars?
+
+ - Cell information command (level, trees, farms, etc.).  Should
+   probably make a rectangle on the game board with the info and
+   should disappear when mouse is moved or something).
+
+ - The user should be able to turn HILLS_AND_FOREST on and off
+   at runtime.  Actually, it is more complicated than that:
+   ---combination------------------  ---colors needed---------
+   1. hills only                     hill_tones
+   2. forest only                    forest_tones
+   3. same value of hill and forest  hill_tones = forest_tones
+   4. hills or forest                hill_tones + forest_tones
+   5. independent hills and forest   hill_tones * forest_tones
+   I think 3 was the previous behavior and 4 is the new
+   HILLS_AND_FOREST behavior.
+
+ - Fix option demands for -replay
+
+ - Implement text-based xbt and xba formats (support old
+   binary formats for reading only)
+
+
+Known Bugs
+==========
+
+ - Replaying saved games does not work with display "null"
+

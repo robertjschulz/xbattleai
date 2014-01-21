@@ -1,0 +1,142 @@
+
+### Descriptive text
+set foo_campaign_description {
+Welcome to the Foo Campaign. 
+
+You are the leader of the small race of Foobars, living on a few tiny islands\
+just off the coast of Mardok. For many centuries your people have lived in\
+peace even though the main continent have been plagued by wars, famines and\
+numerous tyrants and monsters. Blissfully ignorant of the developments on\
+the mainland you live a simple and happy life; but this is all about to change...\
+}
+
+### Level 1
+set foo_scen1 {
+Level 1:
+
+Your people are in danger, for the first time in millenia your people have been\
+dragged into the wars raging on the continent. There is a massive fleet of Orchs\
+from Mardok approaching your east coast and somehow, you just know that they are\
+not here for smalltalk.
+
+Your people haven't had the need for a defensive army for a very long time and\
+are totally unprepared to defend themselves. You need to quickly mobilise and defend\
+your people from becomming slaves to the Orchs. 
+}
+
+### Level 1
+set foo_defeated1 {
+you where defeated and your people are now being forced aboard the ships of the\
+enemies. Their destination, the slave mines of Mardok. 
+}
+set foo_options1 "-load foo1.xbt -blue me -red null -ai 1 1 2.0 -harbours -win_army 98 army -win_wait 2"	
+
+### Level 2
+set foo_scen2 {
+Level 2:
+
+Through your cunning list and tactical suppeority your have defeated the invading\
+Orcish army. Your people are safe, for now. It is still unknown what made the Orcs\
+suddently decide it worth the effort to attack but they will surely regret it. After\
+counceling with the elders you have decided that your people are not safe until the\
+threat from the Orcs are elliminated once and for all. 
+
+You have mobilized a seizable fleet and are now prepared to retaliate on the cruel Orcs.\
+In this first stage of the retaliation assault you should destroy the three outer harbours\
+of the enemy. To assist the assault you have brought men and materials for the construction\
+of a small armybase. Use the 'b' command to setup your headquarters on the shores of\
+one of the uninhabited islands. 
+}
+set foo_options2 "-blue \\\{ -win_pos 13 1 pos1 -win_pos 12 10 pos2 -win_pos 10 6 pos2 \\\} me -red null -cell 32 -hex -boardx 24 -boardy 14 -nosound -load foo2.xbt -build 1 -build_limit 1 -build_cost 5 -harbours -ai 1 1 0.1 -attack -win_wait 2 -win_army 99 army"
+
+### Level 3
+set foo_scen3 {
+Level 3:
+
+sorry, no more levels finished yet
+}
+
+### Currently played level etc..
+set foo_level 1
+
+proc mainbutton_foo {} {
+	global head_bg
+	button .head.title.buttons.foo -text "The Foo Campaign" -command "foo_description" -bg $head_bg
+	pack .head.title.buttons.foo -side left
+}
+
+proc foo_description {} {
+	global head_bg foo_campaign_description
+
+	destroy .head.title.buttons
+	destroy .custom .campaign
+	
+	frame .head.title.buttons -bg $head_bg; pack .head.title.buttons -side bottom
+	button .head.title.buttons.back -text "main menu" -command "menu_main" -bg $head_bg
+	pack .head.title.buttons.back -side left
+	button .head.title.buttons.play -text "play campaign" -command "foo_next_level" -bg $head_bg
+	pack .head.title.buttons.play -side left
+
+	frame .campaign -bg $head_bg; pack .campaign
+	message .campaign.description -textvariable foo_campaign_description -width 500 -bg $head_bg	
+	pack .campaign.description
+
+	recenter .
+}
+
+proc foo_next_level {} {
+	global head_bg foo_level 
+	global foo_scen$foo_level
+
+	destroy .head.title.buttons
+	destroy .custom .campaign
+	
+	frame .head.title.buttons -bg $head_bg; pack .head.title.buttons -side bottom
+	button .head.title.buttons.back -text "main menu" -command "menu_main" -bg $head_bg
+	pack .head.title.buttons.back -side left
+	button .head.title.buttons.play -text "play" -command "foo_start_xb" -bg $head_bg
+	pack .head.title.buttons.play -side left
+
+	frame .campaign -bg $head_bg; pack .campaign
+	message .campaign.description -textvariable foo_scen$foo_level -width 500 -bg $head_bg	
+	pack .campaign.description
+
+	recenter .
+}
+
+proc foo_start_xb {} {
+	global foo_level snd_wrapper
+	global foo_options$foo_level
+
+	eval "set options \$foo_options$foo_level"
+	set commandline "$snd_wrapper xbattle $options"
+	wm iconify .
+	set res [eval "exec $commandline"]
+	wm deiconify .
+	set winner [lindex $res 0]
+
+	if {$winner == 0} {
+		set foo_level [expr	$foo_level + 1]
+		foo_next_level
+	} else {
+		foo_defeated
+	}
+}
+
+proc foo_defeated {} {
+	global head_bg foo_level 
+	global foo_scen$foo_level
+
+	destroy .head.title.buttons
+	destroy .custom .campaign
+	
+	frame .head.title.buttons -bg $head_bg; pack .head.title.buttons -side bottom
+	button .head.title.buttons.play -text "try again!" -command "foo_next_level" -bg $head_bg
+	pack .head.title.buttons.play -side left
+
+	frame .campaign -bg $head_bg; pack .campaign
+	message .campaign.description -textvariable foo_defeated$foo_level -width 500 -bg $head_bg	
+	pack .campaign.description
+
+	recenter .
+}

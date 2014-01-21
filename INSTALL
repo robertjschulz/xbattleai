@@ -1,0 +1,130 @@
+
+XBATTLE 5.4.1 / XBattleAI 1.2.x INSTALLATION
+
+
+
+0) PRELIMINARY
+
+ Xbattle should be pretty easy and straightforward to compile as it uses GNU
+ Autoconf to automatically create a Makefile customized for your system.
+ Xbattle doesn't use any particularly strange libraries or have a long list
+ of dependencies.  It currently requires POSIX threads and X11 libraries.
+ These should exist on most Unix-like systems.
+
+
+1) HOW TO CONFIGURE XBATTLE
+
+ In the instructions below, the % symbol represents your command prompt.
+ You do not need to type it literally :)
+
+ All required libraries should be located by the configure script.  If the
+ X11 libraries are not found, you may specify their location when running
+ configure with the following command line options:
+
+   --x-includes=DIR
+   --x-libraries=DIR
+
+ The configure script will automatically select a compiler.  It will use gcc
+ if it is installed.  You may override this selection by setting the CC
+ environmental variable, or if you are using a Bourne derived shell, by
+ specifying the variable before the command (CC=/opt/comp/bin/cc ./configure).
+
+ You may also specify the desired location for the installation of xbattle
+ with the option:
+
+   --prefix=DIR
+
+ If you do not use this option, xbattle will default to using /usr/local.
+ You may also wish to disable one or more of these game options (they are
+ enabled by default):
+
+   --disable-hills-and-forest
+   --enable-hills-and-forest
+       Enables support for maps using both forest and hills. With this
+       option, you will be able to create maps with both terrains. This is
+       needed to play the Gauntlet Campaign.  Auto-generated maps do not
+       use hills and forests at the same time yet.
+
+   --disable-base-side
+   --enable-base-side
+       Enable support for maps using side owned towns. With this option, you
+       will be able to create maps with towns, villages or cities which
+       produce troops for one side only. These towns are displayed using a
+       color similar to the owning side. This is needed to play the Gauntlet
+       Campaign.
+
+   --disable-ai2-learning
+   --enable-ai2-learning
+       Enables learning in AI algorithm 2.
+
+ Now generate a Makefile by running the configure script with any options
+ from above:
+   % ./configure --prefix=/usr/local/xbattle
+
+
+2) HOW TO COMPILE XBATTLE
+
+   After configuring xbattle ...
+
+   Just type:
+     % make
+
+   Now sit back and wait for the compiler to complete its work.
+
+
+
+3) HOW TO INSTALL XBATTLE
+
+ Once xbattle has been compiled ...
+
+ To install the program, the man page, the example files, tutorials,
+ and the Gauntlet Campaign type:
+   % make install
+
+ You may also skip installation and run xbattle directly from the compile
+ directory.
+
+ There are a few items which you may wish to check at this time.
+ 
+  (A) Make sure that the install "bin" directory is in your command
+      path as set in your dot files (.cshrc, .profile, .tcshrc,
+      .bashrc, .zshrc, etc.).
+      If you use csh or tcsh type:
+        % rehash
+
+  (B) Make sure that the install "man" directory in in your MANPATH.
+      This is an environmental variable which is set in your dot files.
+
+  (C) Update the abbreviated man page index (apropos or man -k).  On most
+      systems this can be done with:
+        % catman -w
+
+  (D) You may wish to setup a personal xbattle preferences file.
+      (a) Edit xbattle.dot as appropriate
+      (b) Type "cp xbattle.dot ~your_login/.xbattle"
+
+
+
+4) HOW TO RUN XBATTLE
+
+ One xbattle has been installed ...
+ 
+ If you are new to the game, try running the tutorials:
+   % xb_tutorial1
+   % xb_tutorial2
+
+ Try playing a short game against AI1:
+   % xbattle -red you -blue me -ai 1 1 0.5 -rbases 3 -hex -sea 3 -hills 5
+
+ Try playing against two opponents:
+   % xb_example
+
+ For a list of all the command-line options you can experiment with, run:
+   % xbattle -help
+
+ Try playing the GAULTLET CAMPAIGN:
+   % xb_gauntletCampaign
+
+
+ We hope you enjoy playing!
+

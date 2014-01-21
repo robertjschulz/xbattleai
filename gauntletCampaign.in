@@ -1,0 +1,215 @@
+#!/bin/sh
+#
+# The Gauntlet Campaign - Pierre Bureau - 22/12/01
+#
+# With this serie of predefined battles for XbattleAi, player
+# is controling the army of the great Alarian Empire in a
+# fantasy world. The empire has to face the starting invasion
+# of barbarian armies from the North. North barbarian tribes
+# are usually too desorganised to coordinate an invasion but 
+# this time they seem to be controlled by a powerful and
+# mysterious leader.
+
+version=0.0.3
+inst_dir=./
+level_dir="${inst_dir}/gauntlet_levels"
+interp="${inst_dir}/gauntlet_interp.awk"
+dat_file="${inst_dir}/gauntlet.dat"
+option_file="${inst_dir}/gauntlet.xbo"
+# FIXME: ~ only works in bash, maybe use $HOME ?
+savefile=~/.xbgcsave
+current=1
+victory=-1
+defeat=-2
+message=null
+
+help=\
+"usage: gauntletCampaign [options]\n\
+\t-h display this help\n\
+\t-cell <size>\tconvenient cell size for your display [default=50]\n\
+\t-ai   <int>\tai level [default=2]\n"
+
+
+#Parse command line
+#It's not a perfect nor robust parser but it works...
+flag=null
+ai_skill=2
+cell_size=50
+dsp_wrapper=""
+
+for i in $@
+do
+  if [ "$flag" = "cell" ]
+	  then if [ 0 -eq `expr match "$i" '[0-9]'` ]
+		  then echo "error: $i is not a integer"
+		  echo -e $help
+		  exit
+	  else cell_size=$i
+	  fi                
+	  flag=arg
+  fi
+
+  if [ "$flag" = "ai" ]
+	  then if [ 0 -eq `expr match "$i" '[0-9]'` ]
+		  then echo "error: $i is not a integer"
+		  echo -e $help
+		  exit
+	  else ai_skill=$i
+	  fi
+	  flag=arg
+  fi
+
+  if [ "$flag" = "dsp_wrapper" ]
+	  then dsp_wrapper=$i
+	  flag=arg
+  fi
+
+                        
+  if [ "$i" = "-h" ]
+	  then echo -e $help
+	  exit
+  fi
+
+  if [ "$i" = "-cell" ]
+	  then flag=cell
+  fi
+
+  if [ "$i" = "-ai" ]
+	  then flag=ai
+  fi
+
+  if [ "$i" = "-dsp_wrapper" ]
+	  then flag=dsp_wrapper
+  fi
+
+  if [ "$flag" = "null" ]
+	  then echo "error: unknow option $i"
+	  echo -e $help
+	  exit
+  fi
+
+  if [ "$flag" = "arg" ]
+	  then flag=null
+  fi
+done
+
+#buffer for awk exporting variable
+#(that's the only method I found $#¹&#!!!!!)
+touch /tmp/xbBuffer.$$
+chmod a+rw /tmp/xbBuffer.$$
+
+#set cell sizes
+big_cell=$cell_size
+let small_cell=$cell_size-10
+
+clear
+echo -e \
+"\n\n\t\t The Gauntlet Campaign - v$version\n\
+\n\
+In year 3.675 AD of the imperial calendar, the Great Alarian Empire\n\
+has enjoyed nearly three hundred years of peace. However, the North\n\
+march is still continuously guarded as barbarian tribes are\n\
+wandering through the harsh, cold and devasted Tundra of the Wasted\n\
+Land. Greedily seeking for the Empire's wealth, barbarians raids\n\
+are quite common."
+
+#main loop
+while [ $current -ne $victory -a $current -ne $defeat ]
+do
+gawk -v cu=$current '$0 ~ ("xbnextwin" cu "="){print $2 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
+nextwin=`cat /tmp/xbBuffer.$$`
+gawk -v cu=$current '$0 ~ ("xbcell" cu "="){print $2 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
+cell_size=`cat /tmp/xbBuffer.$$`
+gawk -v cu=$current '$0 ~ ("xbnextlost" cu "="){print $4 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
+nextlost=`cat /tmp/xbBuffer.$$`
+gawk -v cu=$current '$0 ~ ("xblevel" cu "="){print $2 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
+level=`cat /tmp/xbBuffer.$$`
+gawk -v cu=$current '$0 ~ ("xboption" cu "="){sub($1,"",$0);print $0 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
+options=`cat /tmp/xbBuffer.$$`
+gawk -v cu=$current -f "${interp}" "${dat_file}"
+
+if [ "$message" != "null" ]
+then echo "Campaign log: $message"
+     message="null"
+fi
+
+#read -s -n1 ans
+read ans
+
+if [ -z "$ans" ]
+	then
+	if [ "$cell_size" = "big" ]	
+		then 
+		echo $dsp_wrapper xbattle -"$option_file" -ai 1 2 $ai_skill -load "${level_dir}/$level" $options -cell $big_cell
+		$dsp_wrapper xbattle -"$option_file" -ai 1 2 $ai_skill -load "${level_dir}/$level" $options -cell $big_cell
+	else
+		echo $dsp_wrapper xbattle -"$option_file" -ai 1 2 $ai_skill -load "${level_dir}/$level" $options -cell $small_cell
+		$dsp_wrapper xbattle -"$option_file" -ai 1 2 $ai_skill -load "${level_dir}/$level" $options -cell $small_cell
+	fi
+        
+	if [ 10 -eq $? ]
+		then
+		current=$nextwin
+	else
+		current=$nextlost
+	fi
+        
+elif [ 1 -eq `expr $ans : '[qQ]'` ]
+	then
+	echo "Campaign log: Quit Game"
+	break
+	
+elif [ 1 -eq `expr $ans : '[sS]'` ]
+then
+	touch $savefile
+        if [ ! -e $savefile ]
+        then message="error: cannot create save file $savefile"
+        else chmod u+rw $savefile
+             echo "$ai_skill $big_cell $current" > $savefile
+             message="Game saved"
+        fi
+
+elif [ 1 -eq `expr $ans : '[lL]'` ]
+then
+	if [ ! -r $savefile ]
+        then message="error: cannot read save file $savefile"
+        else ai_skill=`cut -d" " -f1 $savefile`
+             big_cell=`cut -d" " -f2 $savefile`
+             current=`cut -d" " -f3 $savefile`
+             let small_cell=$big_cell-10
+             message="Game loaded"
+        fi
+fi
+
+#clear
+done
+
+if [ $current -eq $victory ]
+then
+echo -e "\n\n\n\
+\t\t YOU ARE VICTORIOUS!\n\
+\n\
+The war against barbarian tribes has been pretty succesful so far.\n\
+However, the gauntlet mystery is still not solved and further assaults\n\
+are expected. A powerfull leader, with godlike power is rumored to have\n\
+gathered all tribes into the iron gauntlet army to invade the Great\n\
+Alarian Empire. The emperor's troops are ready to fight until death.\n\
+\n\
+Wait for the full Gauntlet Campaign release to defend the Alarian\n\
+Empire against Barbarian hordes. Will you succeed to defeat this\n\
+mysterious force from the North...\n"
+fi
+
+if [ $current -eq $defeat ]
+then
+echo -e "\n\n\n\
+\t\t YOU HAVE BEEN DEFEATED!\n\
+\n\
+The imperial army has failed to stop Barbarian invasion. Shortly,\n\
+countless, blood thirsty barbarian hordes will be rushing to the
+south, and devastating the empire\n\
+\n\
+\tAnd until then try again to defeat the first invasion wave!\n"
+fi
+
+rm -f /tmp/xbBuffer.$$

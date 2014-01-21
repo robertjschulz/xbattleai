@@ -1,0 +1,157 @@
+
+CHANGE LOG:
+
+2000-09-10: 
+  Creation of the change log. All modifications to
+  XBattle[AI] prior to this date unfortunately lack 
+  entries in the changelog. 
+
+2000-09-10:
+  First version of XBattleAI is released. It incorporates
+  changes to the original XBattle by providing purely reactive
+  computer controlled opponents.
+
+2000-10-29:
+  - Fixed several bugs regarding the skill level system of the AI,
+  also shifted the scale of AI making the same skill level harder.  
+  - Modification of the AI algorithms used. The computer now makes
+  synchronised attacks from muliple cells and only on positive
+  odds. Attacks can also be aborted when loosing.
+  - A feedback value has been added to the ai data resulting
+  in a not purely reactive system. The net effect is that the AI
+  will concentrate troops around a target to attack before making
+  the attack.
+  - A dummy display name "null:0.0" has been added to avoid opening
+  XWindows for computer controlled players. Ie, use options 
+  "-red null -ai 0 5 -green :0.0 ..."
+
+2000-10-30: Releasing recent changes as xbattleai-1.1 [.tgz/.x86.tgz]
+
+2000-11-01: Fixed some bugs in XBattleAI v1.1, especially the one
+  making the AI in version 1.1 actually worse (in some cases) that the
+  older one in v1.0.
+  All file input/output now works regardless of machine big/small 
+  endianness and XBattle now work better with truecolor displays.
+
+2000-11-02: Fixed the inconsistency with dummy display names "you" and "null",
+  both display names now work for AI and for replays.
+
+2000-11-??: This was called XBattleAI-1.1.1
+
+2000-11-04: Comments are now allowed in .xbo files, # begins comment
+  until end of line.
+
+2000-12-05: Applied patches from michael grundel fixing compiler some 
+  compilation errors. Ooop, lost some of my recent changes. Had to reimplement
+  the 2000-11-04 changes - what else did I loose?
+  Lets call this XBattleAI-1.1.2
+
+2001-02-20: Received some fixes for the colour handling. Should work better
+  now on more esoteric Xservers. I have decided to ignore my half finished
+  enhancements and skip this codebase. I will reimplement something similar
+  under another name with a client/server structure and some other major
+  design changes. All further patches I receive to xbattleai will of course
+  be applied and published :-)
+
+2001-05-31:  Apparantly I made a mistake incoporating the threading code in
+  lastest release (1.1.4), there's not a single mutex in sight anywhere. I'll
+  make a roll back to 1.1.3 and reapply the alternative AI patch an update
+  the website.
+  
+2001-07-31: A new ai algorithm has been implemented and the -ai option is now
+  a bit different (needs a third arg). The second ai algo uses skill from 1 to
+  10 (10 the hardest). XbattleAI can be played using maps with Hills AND
+  forests, the editor has been modified to create and modify such maps (use
+  WITH_HILLS_AND_FOREST tag). A seqmentation fault problem has been corrected
+  in the editor (if user would click in the window but outside the map). A
+  victory detector has been implemented, the game will stop when one of the side
+  wins (use WITH_VICTORY_DETECTOR flag).
+  
+2001-11-25: Some misc. bugs and compiler warnings fixed.
+
+2002-09-09: Converted all function to C89 argument lists.  Added prototypes
+  for all functions to exports.h.  Removed K&R local function declarations
+  in favor of including the correct C library header (eg. pow, strdup).
+  Added other headers where needed (string.h, stdlib.h).  Removed X headers
+  and setjump header from files which didn't need it.  Fixed two out-of-
+  bounds array accesses.  Decreased the space allocated for two arrays
+  (space was never used).  Increased the precision of the constants in
+  constant.h so that it will fill a 64 bit double.
+
+2002-09-10: Converted lots of functions and data to be local to the
+  containing file by making it static.  Added const to arguments and static
+  data where possible.  Fixed some memory leaks.  Commented out some unused
+  code.  Moved ai per-cell data into separate structures (one for each ai).
+  Split ai.c into generic code and ai1.c.  Moved per-cell ai initialization
+  into ai[12].c.  Converted C++ style comments to C style.
+
+2002-09-11: Removed uneeded temporary string buffers from error.c.  Added
+  double-inclusion protection to the header files.  Fixed some minory bugs in
+  the cell dump and load code.  Improved the error checking of some command
+  line arguments.  Removed patchlevel.h and makefile.std.  Renamed EXAMPLE1
+  to xb_example.
+
+2002-09-12: Removed dead assignment to run_fill.  Make parse.h data const and
+  static.  Covert color name strings to pointers from arrays.  Removed
+  generic loop.  If we require X then requiring select isn't a big deal.
+  Improved the expose handling and redrawing.
+
+2002-09-15: Fixed use of uninitialized data in ai[12].c by changing
+  initialization order.  Ai init is now done through callbacks.  Moved fd_set
+  out of Config data and made it local to main.  Moved global variables into
+  main and removed global.h.  Added parentheses to macro arguments.
+
+2002-09-18: Converted Makefile/Imakefile to autoconf.  Reworked the Gauntlet
+  Campaign so that the Makefile will update the path so it can be run from
+  any directory.  Renamed the tutorial scripts to xb_*.  Fixed some typos
+  and spelling mistakes in comments and documentation.  Deleted makefile
+  and Imakefile.
+
+2002-09-19: Rewrote install instructions to reflect use of autoconf.  Added
+  HAVE_ ifdefs to code.  Added install rules to Makefile.in.  Changed
+  remove_player, process_event, and draw_message to have a return value to
+  indicate if all players are gone so unix_loop can return to main and call
+  the cleanup routines.
+
+2002-09-22: Added FIXME comments in several locations.  Fixed use of xbutton
+  instead of xkey (didn't matter much since they have exactly the same member
+  types).  Implemented AI cleanup callbacks.
+
+2002-09-23: Made variables to skip thread calls if not doing client/server
+  stuff (the extra threads just slow things down).  Fixed circular erase to
+  also remove corners of battle cross.  Removed extra code in cell drawing by
+  using GC and Pixmap temp variables (fewer ifdefs).  Fixed two-pixel
+  over-erase in shape_hex which would make the four angled sides have a small
+  hole in the center.  Added fixme for remaining hex erase problem.  Fixed
+  similar problem in triangle where one pixel of the right border was erased.
+  Removed MAX_HEXSIZE and renamed MAX_SQUARESIZE to MAX_CELLSIZE.  Upped max
+  cell and max board sizes to 128.  Replaced MAX_SELECTSIZE with
+  MAX_CELLSIZE.  Fixed erase problem in diamond code.  Fixed connection
+  problem in diamond code that kept the very bottom (odd) row from being
+  enterable from cells to the right.  Fixed other wrapping problems in
+  diamond code.
+
+2002-09-24: Added USE_STRIPE to cause the arrow graphics to have an inverse
+  strip outside the troop area.  Added parse.c check to limit cell size to
+  maximum.  Deleted some unused constants.
+
+2002-09-30: Added --enable/--disable options as per INSTALL help.  Looked
+  into calling tmpfile() or mkstemp() in main but decided that using a temp
+  file is a hack.  The load.c code should be reworked.  Added new return key
+  action which allows messaging without moving the mouse to the message area.
+
+2002-10-09: Added small man page fixes.  Updated option list in man page.
+  Sorted option list in usage statement.  Reworded some argument descriptions.
+  Started using bold for commands and option names and italics for filenames
+  and parameters in manpage.  Lots of changes left to do.  Used indented list
+  for description of drawing options.  Started removing references to
+  Config->fp.  Tiny script update.  Fixed #ifdef -> #if for USE_STRIPE.
+
+2002-10-10: More manpage updates.  Added VICTORY OPTIONS section.
+
+2002-10-16: Temp file cleanups.  Client and server have different fileanames,
+  different processes have different names.  Temp files are deleted when no
+  longer needed.  Client/Server options have better parameter checking.
+  Fixed argument count for -use_server in options.h and xbattle.man.  Converted
+  file.c to use buffers and bit-twiddling to put values into a known binary
+  format.

@@ -1,0 +1,31 @@
+#@ Desert War
+#@
+#@ Legions patrol the desert from their bases. Remember that your armies
+#@ slowly die in the constant sun and dangerous sand, so you must plan
+#@ your attack on the enemy base well. It's a good idea to coordinate
+#@ several of your nearest bases in the attack of an enemy base, but remember
+#@ not to leave your back open.
+
+-hills 7
+-hill_tones 5
+-hill_color 0 224 224 165
+-hill_color 4 200 175 100
+-peak_bias 0.7
+-no_sea
+-no_forest
+-attack
+-area
+-rbases 4
+-cell 35
+-square
+-board 18
+-boardx 25
+-map
+-horizon 2
+-guns 3
+-para 3
+-guns_cost 8
+-guns_damage 6
+-para_cost 15
+-para_damage 7
+-decay 2

@@ -1,0 +1,296 @@
+#
+#	Makefile for XbattleAI - 07/31/2001
+#
+
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
+bindir		= @bindir@
+mandir		= @mandir@
+sharedir	= @datadir@/xbattle
+#sbindir		= @sbindir@
+#libdir		= @libdir@
+#confdir		= @sysconfdir@
+#vardir		= @localstatedir@
+
+SRC_DIR		= @srcdir@
+XBO_DIR		= ${sharedir}/xbos
+XBT_DIR		= ${sharedir}/xbts
+XBA_DIR		= ${sharedir}/xbas
+SND_DIR		= ${sharedir}/snd
+XBC_DIR  	= ${sharedir}/xbcs
+IMG_DIR		= ${sharedir}/images
+GC_DIR		= ${sharedir}/gauntletCampaign
+
+RMF		= rm -f
+
+ECHO		= echo
+
+SED		= sed
+
+INSTALL		= @INSTALL@
+INSTALL_PROGRAM	= @INSTALL_PROGRAM@
+INSTALL_DATA	= @INSTALL_DATA@
+INSTALL_SCRIPT	= @INSTALL_SCRIPT@
+INSTALL_DIRS	= @INSTALL@ -d -m 755
+
+#WARNFLAGS	= -pedantic -Wall
+#WARNFLAGS	= -pedantic -Wall -Wpointer-arith -Wwrite-strings -Wstrict-prototypes -Wmissing-declarations -Wshadow -Wcast-qual -Wcast-align -Wmissing-prototypes -Waggregate-return -Wnested-externs
+
+DEF_FILES	= -DDEFAULT_XBO_DIR=\"${XBO_DIR}\" \
+                  -DDEFAULT_XBT_DIR=\"${XBT_DIR}\" \
+                  -DDEFAULT_XBA_DIR=\"${XBA_DIR}\" \
+				  -DDEFAULT_SND_DIR=\"${SND_DIR}\"
+DEFINES		= @DEFS@ @ENABLES@ ${DEF_FILES}
+
+CPPFLAGS	= ${DEFINES} @CPPFLAGS@
+COMPILE		= @CC@ @CFLAGS@ ${WARNFLAGS} ${CPPFLAGS} -c
+LINK		= @CC@ @CFLAGS@ @LDFLAGS@
+LINK_LIBS	= @LIBS@
+
+
+SRCS	= \
+ ${SRC_DIR}/command.c \
+ ${SRC_DIR}/draw.c \
+ ${SRC_DIR}/edit.c \
+ ${SRC_DIR}/error.c \
+ ${SRC_DIR}/init.c \
+ ${SRC_DIR}/load.c \
+ ${SRC_DIR}/main.c \
+ ${SRC_DIR}/parse.c \
+ ${SRC_DIR}/replay.c \
+ ${SRC_DIR}/shape.c \
+ ${SRC_DIR}/shape_diamond.c \
+ ${SRC_DIR}/shape_hex.c \
+ ${SRC_DIR}/shape_octagon.c \
+ ${SRC_DIR}/shape_square.c \
+ ${SRC_DIR}/shape_triangle.c \
+ ${SRC_DIR}/update.c\
+ ${SRC_DIR}/utils.c \
+ ${SRC_DIR}/window.c \
+ ${SRC_DIR}/ai.c \
+ ${SRC_DIR}/ai1.c \
+ ${SRC_DIR}/ai2.c \
+ ${SRC_DIR}/file.c \
+ ${SRC_DIR}/victory.c \
+ ${SRC_DIR}/sound.c 
+
+OBJS	= \
+ ${SRC_DIR}/command.o \
+ ${SRC_DIR}/draw.o \
+ ${SRC_DIR}/edit.o \
+ ${SRC_DIR}/error.o \
+ ${SRC_DIR}/init.o \
+ ${SRC_DIR}/load.o \
+ ${SRC_DIR}/main.o \
+ ${SRC_DIR}/parse.o \
+ ${SRC_DIR}/replay.o \
+ ${SRC_DIR}/shape.o \
+ ${SRC_DIR}/shape_diamond.o \
+ ${SRC_DIR}/shape_hex.o \
+ ${SRC_DIR}/shape_octagon.o \
+ ${SRC_DIR}/shape_square.o \
+ ${SRC_DIR}/shape_triangle.o \
+ ${SRC_DIR}/update.o \
+ ${SRC_DIR}/utils.o \
+ ${SRC_DIR}/window.o \
+ ${SRC_DIR}/ai.o \
+ ${SRC_DIR}/ai1.o \
+ ${SRC_DIR}/ai2.o \
+ ${SRC_DIR}/file.o \
+ ${SRC_DIR}/victory.o \
+ ${SRC_DIR}/sound.o
+
+# FIXME: some people might want 1, some 6.  Make a configure option.
+# (Leave off the path and the .man suffix -- it makes the install-man
+#  rule much simpler.)
+#MAN1	= xbattle
+MAN6	= xbattle
+
+TARGET	= ${SRC_DIR}/xbattle
+
+SCRIPTS	= \
+ ${SRC_DIR}/gauntletCampaign \
+ ${SRC_DIR}/xb_example \
+ ${SRC_DIR}/xb_tutorial1 \
+ ${SRC_DIR}/xb_tutorial2 \
+ ${SRC_DIR}/xbattle.tcl
+
+
+
+#### default target ####
+.PHONY:	all
+
+all:	config ${TARGET} ${SCRIPTS}
+
+
+.PHONY:	clean
+
+clean:
+	-${RMF} ${OBJS} ${TARGET} ${SRC_DIR}/gauntletCampaign ${SRC_DIR}/xbattle.tcl core core.[1-9]*
+
+
+.PHONY:	distclean
+
+distclean:
+	-${RMF} ${OBJS} ${TARGET} ${SRC_DIR}/gauntletCampaign ${SRC_DIR}/xbattle.tcl core core.[1-9]* ${SRC_DIR}/Makefile ${SRC_DIR}/config.h ${SRC_DIR}/config.cache ${SRC_DIR}/config.log ${SRC_DIR}/config.status
+
+
+.PHONY: clean-compile
+
+clean-compile: clean all
+
+
+.PHONY: config
+config: ${SRC_DIR}/Makefile ${SRC_DIR}/config.h
+
+${SRC_DIR}/configure: ${SRC_DIR}/configure.in
+	@${ECHO} "The configure script is out of date; rebuilding..."
+	autoconf
+	@${ECHO} >> ${SRC_DIR}/config.h.in
+	@${ECHO} >> $@
+
+${SRC_DIR}/config.h.in: ${SRC_DIR}/configure.in
+	@${ECHO} "The config.h.in header is out of date; rebuilding..."
+	autoheader
+	@${ECHO} >> $@
+	@${ECHO} >> ${SRC_DIR}/configure
+
+${SRC_DIR}/config.status: ${SRC_DIR}/configure
+	@if [ -f ${SRC_DIR}/config.status ]; then \
+	  ${ECHO} "The config.status script is out of date; rechecking..."; \
+	  ${SRC_DIR}/config.status --recheck; \
+	else \
+	  ${ECHO} "You need to run configure first."; \
+	  exit 1; \
+	fi
+	@${ECHO} >> $@
+
+${SRC_DIR}/config.h: ${SRC_DIR}/config.h.in ${SRC_DIR}/config.status
+	@${ECHO} "The config.h header is out of date; rewriting..."
+	${SRC_DIR}/config.status
+	@${ECHO} >> ${SRC_DIR}/Makefile
+	@${ECHO} >> $@
+
+${SRC_DIR}/Makefile: ${SRC_DIR}/Makefile.in ${SRC_DIR}/config.status
+	@${ECHO} "The Makefile is out of date; rewriting..."
+	${SRC_DIR}/config.status
+	@${ECHO} >> ${SRC_DIR}/config.h
+	@${ECHO} >> $@
+
+
+${SRC_DIR}/gauntletCampaign: ${SRC_DIR}/gauntletCampaign.in
+	${SED} -e 's@^\(inst_dir *= *\)\./$$@\1'"${GC_DIR}"'@' $< > $@
+
+${SRC_DIR}/xbattle.tcl: ${SRC_DIR}/xbattle.tcl.in
+	${SED} -e 's@^\(set share \)\.$$@\1'"${sharedir}"'@' $< > $@
+
+.c.o:
+	@${RMF} $@
+	${COMPILE} $< -o $@
+
+${TARGET}:	${OBJS}
+	${LINK} ${OBJS} ${LINK_LIBS} -o $@
+
+
+.PHONY: install
+
+install: install-bin install-man install-share
+
+.PHONY: install-bin
+
+install-bin: ${TARGET} ${SCRIPTS}
+	${INSTALL_DIRS} ${bindir}
+	@list='${TARGET} ${SCRIPTS}'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_PROGRAM} $$p ${bindir}"; \
+	    ${INSTALL_PROGRAM} $$p ${bindir}; \
+	  else :; fi; \
+	done
+
+.PHONY: install-man
+
+install-man:
+	${INSTALL_DIRS} ${mandir}
+	@list='${MAN1}'; for p in $$list; do \
+	  ${INSTALL_DIRS} ${mandir}/man1; \
+	  if test -f ${SRC_DIR}/$${p}.man; then \
+	    ${ECHO} "${INSTALL_DATA} ${SRC_DIR}/$${p}.man ${mandir}/man1/$${p}.1"; \
+	    ${INSTALL_DATA} ${SRC_DIR}/$${p}.man ${mandir}/man1/$${p}.1; \
+	  else :; fi; \
+	done
+	@list='${MAN6}'; for p in $$list; do \
+	  ${INSTALL_DIRS} ${mandir}/man6; \
+	  if test -f ${SRC_DIR}/$${p}.man; then \
+	    ${ECHO} "${INSTALL_DATA} ${SRC_DIR}/$${p}.man ${mandir}/man6/$${p}.6"; \
+	    ${INSTALL_DATA} ${SRC_DIR}/$${p}.man ${mandir}/man6/$${p}.6; \
+	  else :; fi; \
+	done
+
+.PHONY: install-share
+
+install-share:
+	${INSTALL_DIRS} ${XBO_DIR}
+	@list='${SRC_DIR}/xbos/*'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_DATA} $$p ${XBO_DIR}"; \
+	    ${INSTALL_DATA} $$p ${XBO_DIR}; \
+	  else :; fi; \
+	done
+	${INSTALL_DIRS} ${XBT_DIR}
+	@list='${SRC_DIR}/xbts/*'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_DATA} $$p ${XBT_DIR}"; \
+	    ${INSTALL_DATA} $$p ${XBT_DIR}; \
+	  else :; fi; \
+	done
+	${INSTALL_DIRS} ${XBA_DIR}
+	@list='${SRC_DIR}/xbas/*'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_DATA} $$p ${XBA_DIR}"; \
+	    ${INSTALL_DATA} $$p ${XBA_DIR}; \
+	  else :; fi; \
+	done
+	${INSTALL_DIRS} ${IMG_DIR}
+	@list='${SRC_DIR}/images/*'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_DATA} $$p ${IMG_DIR}"; \
+	    ${INSTALL_DATA} $$p ${IMG_DIR}; \
+	  else :; fi; \
+	done
+	${INSTALL_DIRS} ${SND_DIR}
+	@list='${SRC_DIR}/snd/*'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_DATA} $$p ${SND_DIR}"; \
+	    ${INSTALL_DATA} $$p ${SND_DIR}; \
+	  else :; fi; \
+	done
+	${INSTALL_DIRS} ${XBC_DIR}
+	@list='${SRC_DIR}/xbcs/*'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_DATA} $$p ${XBC_DIR}"; \
+	    ${INSTALL_DATA} $$p ${XBC_DIR}; \
+	  else :; fi; \
+	done
+	${INSTALL_DIRS} ${GC_DIR}
+	${INSTALL_DATA} ${SRC_DIR}/gauntlet/gauntlet.dat ${GC_DIR};
+	${INSTALL_DATA} ${SRC_DIR}/gauntlet/gauntlet.xbo ${GC_DIR};
+	${INSTALL_PROGRAM} ${SRC_DIR}/gauntlet/gauntlet_interp.awk ${GC_DIR};
+	${INSTALL_DIRS} ${GC_DIR}/gauntlet_levels
+	@list='${SRC_DIR}/gauntlet/gauntlet_levels/*'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_DATA} $$p ${GC_DIR}/gauntlet_levels"; \
+	    ${INSTALL_DATA} $$p ${GC_DIR}/gauntlet_levels; \
+	  else :; fi; \
+	done
+
+
+.PHONY:	depend
+
+depend:	
+	makedepend ${CFLAGS} -o ${OBJS} ${SRCS}
+
+
+# Tell version [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:
+

@@ -1,0 +1,113 @@
+
+### Descriptive text
+set foo_campaign_description {
+Welcome to the Foo Campaign. 
+
+This is just a simple campaign written to test using campaigns from\
+within the XBattleAI-launcher.
+
+So... feel like testing it?
+}
+
+### Level 1
+set foo_scen1 {
+Level 1:
+
+Your people are in danger, the enemy boats are closing in on you... survive!
+}
+
+### Level 1
+set foo_defeated1 {
+Sorry, you where defeated and your people where enslaved by the cruel invaders.
+}
+
+### Level 2
+set foo_scen2 {
+Level 2:
+
+It is time to retaliate. Build up a fleet and use it to destroy all of the enemies harbours.
+}
+
+### Level 3
+set foo_scen3 {
+Level 3:
+
+Now, invade into the enemies mainland crush the puny XXX...
+}
+
+### Currently played level etc..
+set foo_level 1
+
+proc mainbutton_foo {} {
+	global head_bg
+	button .head.title.buttons.foo -text "The Foo Campaign" -command "foo_description" -bg $head_bg
+	pack .head.title.buttons.foo -side left
+}
+
+proc foo_description {} {
+	global head_bg foo_campaign_description
+
+	destroy .head.title.buttons
+	destroy .custom .campaign
+	
+	frame .head.title.buttons -bg $head_bg; pack .head.title.buttons -side bottom
+	button .head.title.buttons.back -text "main menu" -command "menu_main" -bg $head_bg
+	pack .head.title.buttons.back -side left
+	button .head.title.buttons.play -text "play campaign" -command "foo_next_level" -bg $head_bg
+	pack .head.title.buttons.play -side left
+
+	frame .campaign -bg $head_bg; pack .campaign
+	message .campaign.description -textvariable foo_campaign_description -width 500 -bg $head_bg	
+	pack .campaign.description
+}
+
+proc foo_next_level {} {
+	global head_bg foo_level 
+	global foo_scen$foo_level
+
+	destroy .head.title.buttons
+	destroy .custom .campaign
+	
+	frame .head.title.buttons -bg $head_bg; pack .head.title.buttons -side bottom
+	button .head.title.buttons.back -text "main menu" -command "menu_main" -bg $head_bg
+	pack .head.title.buttons.back -side left
+	button .head.title.buttons.play -text "play" -command "foo_start_xb" -bg $head_bg
+	pack .head.title.buttons.play -side left
+
+	frame .campaign -bg $head_bg; pack .campaign
+	message .campaign.description -textvariable foo_scen$foo_level -width 500 -bg $head_bg	
+	pack .campaign.description
+}
+
+proc foo_start_xb {} {
+	global foo_level snd_wrapper
+
+	set commandline "$snd_wrapper xbattle -load foo1.xbt -blue :0 -red null -ai 1 1 2.0 -harbours -win_pos 0 0 army"
+	set res [eval "exec $commandline"]
+	puts $res
+	set winner [lindex $res 0]
+	puts $winner
+
+	if {$winner == 0} {
+		set foo_level [expr	$foo_level + 1]
+		foo_next_level
+	} else {
+		foo_defeated
+	}
+}
+
+proc foo_defeated {} {
+	global head_bg foo_level 
+	global foo_scen$foo_level
+
+	destroy .head.title.buttons
+	destroy .custom .campaign
+	
+	frame .head.title.buttons -bg $head_bg; pack .head.title.buttons -side bottom
+	button .head.title.buttons.play -text "oh, too bad" -command "foo_next_level" -bg $head_bg
+	pack .head.title.buttons.play -side left
+
+	frame .campaign -bg $head_bg; pack .campaign
+	message .campaign.description -textvariable foo_defeated$foo_level -width 500 -bg $head_bg	
+	pack .campaign.description
+}

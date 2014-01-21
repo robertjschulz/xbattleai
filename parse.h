@@ -1,0 +1,70 @@
+#ifndef INCLUDED_PARSE_H
+#define INCLUDED_PARSE_H
+
+/** Private header for parse.c **/
+
+typedef struct
+{
+  char const * const	name;
+  unsigned char		hue_triplet[3],
+			hue_inverse,
+			bw_octet[8],
+  			bw_inverse;
+} hue_default_info;
+
+/** Specify the default color names, along with (in order) their red, green,	**/
+/** and blue components, the index of their inverse (in the Hues array), their	**/
+/** 8 hex entry stipple pattern for black & white display, and the index of	**/
+/** their stipple inverse (in the Hues array).					**/
+
+static hue_default_info const Hues[MAX_HUES] = {
+  {"back",    { 210, 220, 150 }, 1,
+              { 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55 }, 1},
+  {"black",   {   0,   0,   0 }, 2,
+	      { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }, 2},
+  {"white",   { 255, 255, 255 }, 1,
+	      { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, 1},
+  {"mark",    {   0,   0,   0 }, 0,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, 0},
+  {"border",  { 192, 192, 192 }, 0,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, 0},
+  {"map",     { 255,   0, 255 }, 0,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, 0},
+  {"dark",    { 140, 140, 140 }, 2,
+              { 0xAA, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF, 0xAA, 0xFF }, 2},
+  {"light",   { 180, 180, 180 }, 1,
+              { 0xAA, 0x00, 0xAA, 0x00, 0xAA, 0x00, 0xAA, 0x00 }, 1},
+  {"fine",    { 160, 160, 160 }, 2,
+              { 0xCC, 0xCC, 0x33, 0x33, 0xCC, 0xCC, 0x33, 0x33 }, 2},
+  {"coarse",  { 200, 200, 200 }, 1,
+              { 0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F }, 2},
+  {"gator",   {  50, 200, 100 }, 2,
+              { 0x7D, 0xBB, 0xD7, 0xEF, 0xF7, 0xEB, 0xDD, 0xBE }, 2},
+  {"brick",   { 200,   0,   0 }, 2,
+              { 0x82, 0x44, 0x28, 0x10, 0x08, 0x14, 0x22, 0x41 }, 1},
+  {"red",     { 255,   0,   0 }, 1,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, BW_NONE},
+  {"cyan",    { 100, 255, 210 }, 1,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, BW_NONE},
+  {"magenta", { 255,   0, 255 }, 1,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, BW_NONE},
+  {"green",   { 130, 255,   0 }, 1,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, BW_NONE},
+  {"blue",    {   0,   0, 175 }, 2,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, BW_NONE},
+  {"yellow",  { 250, 250, 130 }, 1,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, BW_NONE},
+  {"dummy",   {   0,   0,   0 }, HUE_NONE,
+              { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, BW_NONE}};
+
+
+static int const Palette_Hills[MAX_HILL_TONES][3] =	{{175, 220, 100},
+							 {200, 175, 100}};
+
+static int const Palette_Forest[MAX_FOREST_TONES][3] =	{{  0, 200,   0},
+							 {  0, 120,   0}};
+
+static int const Palette_Sea[MAX_SEA_TONES][3] =	{{ 70, 132, 200},
+							 { 30,  65, 185}};
+
+#endif /* INCLUDED_PARSE_H */

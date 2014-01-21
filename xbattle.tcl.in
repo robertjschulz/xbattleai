@@ -1,0 +1,679 @@
+#!/bin/sh
+#reload script through wish \
+exec wish "$0" "$@"
+
+set share .
+
+set color_names "Red Green Blue Yellow Cyan Magenta Gray Pink Purple Black White"
+set shape_names "square hex octagon triangle diamond"
+
+# Sound wrapper
+set snd_wrapper ""
+set x ""
+catch {set x [exec ps -C "artsd" -oc]}
+if {[llength $x] > 1} {
+	set snd_wrapper "artsdsp"
+} else {
+	set x ""
+	catch {set x [exec ps -C "esd" -oc]}
+	if {[llength $x] > 1} {set snd_wrapper "esddsp"}
+}
+
+# XBO's
+set xbos [exec ls $share/xbos]
+set scenarios "none" 
+set xbo_load after
+foreach name $xbos {set scenarios "$scenarios $name"}
+set scenario none
+
+# Fullblown campaigns
+set res [exec ls $share/xbcs]
+set campaigns ""
+foreach x $res {
+	set is_xbc [regexp "(.*)\.xbc$" $x _ name]
+	if {$is_xbc == 1} {
+		set campaigns "$campaigns $name"
+		puts "Preloading campaign $name"
+		eval [exec cat $share/xbcs/$x]	
+	}
+}
+
+# Make sure the initial arrays for players are initialized
+for {set i 0} {$i < [llength $color_names]} {incr i} {
+	set colors($i) [lindex $color_names $i]
+	set displays($i) ":0.0"
+	set player_types($i) Computer1
+}
+set nplayers 2
+set player_types(0) "Human"
+
+# Map
+set shape hex 
+set width 24 
+set height 12 
+set cell 40
+
+# Boolean options
+set boolean_opts "attack disrupt grid hidden repeat reserve wrap manage map localmap basemap sound harbours"
+foreach opt $boolean_opts { set $opt 0 }
+set grid 1 ; set attack 1 ; set repeat 1 ; set sound 1
+
+# Misc
+set horizon 0
+set march 0
+set farms 10
+
+# rinit
+set rbases 3
+set rbase_range 5
+set towns 0
+set armies 0
+set militia 0
+
+# Terrain
+set terrain_type "Hills"
+set terrain_density 3
+set sea 2
+
+# Build & Scuttle
+set build 0
+set build_segments 4
+set build_cost 18
+set build_limit 0
+set scuttle_segments 0
+set scuttle_cost 10
+
+# Terrain altering
+set dig 0
+set dig_cost 18
+set fill 0
+set fill_cost 18
+
+# Guns & Paratroopers
+set guns_range 0
+set guns_cost 2
+set guns_damage 1
+set para_range 0
+set para_cost 3
+set para_damage 1
+
+# Victory condition
+set victory_condition trad
+set victory_percent 90.0
+set victory_time 600
+set victory_x 0
+set victory_y 0
+set victory_wait 10
+
+
+# Movement and Combat
+set fight 5
+set move 5
+set speed 5
+set maxval 20
+set nospigot 20
+set decay 0
+
+# extras
+set seed 0
+set pre_options ""
+set post_options ""
+
+# Colors of the different parts of the setup screen
+set newgame_bg "light sky blue"
+set head_bg "light sky blue"
+set opts_bg "light sky blue"
+set buttons_bg "light sky blue"
+set others_bg "light sky blue"
+set map_bg "light sky blue"
+set build_bg "light sky blue"
+set dig_bg "light sky blue"
+set fight_bg "light sky blue"
+set terrain_bg "light sky blue"
+set forces_bg "light sky blue"
+set guns_bg "light sky blue"
+set vc_bg "light sky blue"
+set ply_bg "light green"
+set extras_bg "burlywood"
+#"BlanchedAlmond"
+ 
+proc gen_commandline {} {
+	global nplayers player_types colors displays skills seed
+	global shape width height cell
+	global boolean_opts; eval "global $boolean_opts"
+	global horizon march farms
+	global build build_segments build_cost build_limit scuttle_segments scuttle_cost
+	global terrain_type terrain_density sea
+	global pre_options post_options
+	global ply_bg
+	global rbases rbase_range towns armies militia
+	global guns_range guns_cost guns_damage para_range para_cost para_damage
+	global victory_condition victory_wait victory_percent victory_time victory_x victory_y
+	global speed fight move maxval nospigot
+	global dig dig_cost fill fill_cost
+	global scenario xbo_load decay
+	global snd_wrapper
+
+    set commandline "$snd_wrapper xbattle $pre_options"
+	if {$scenario != "none" && $xbo_load == "before"} {set commandline "$commandline -options $scenario"}
+	set commandline "$commandline -speed $speed -fight $fight -move $move -maxval $maxval -nospigot $nospigot \
+-$shape -boardx $width -boardy $height -cell $cell"
+	foreach opt $boolean_opts {
+		eval "set value $$opt"
+		if {$value == 0} {set commandline "$commandline -no$opt"} else {set commandline "$commandline -$opt"}
+	}
+	# decay
+	if {$decay > 0} {set commandline "$commandline -decay $decay"}	
+	# horizon
+	if {$horizon > 0} {set commandline "$commandline -map -horizon $horizon"}
+	# march
+	if {$march > 0} {set commandline "$commandline -march $march"}
+	# farms
+	if {$farms > 0} {set commandline "$commandline -farms $farms"}
+	# rinit
+	if {$rbases > 0} {set commandline "$commandline -rbases $rbases"}
+	if {$rbases > 0} {set commandline "$commandline -rbase_range $rbase_range"}
+	if {$towns > 0} {set commandline "$commandline -towns $towns"}
+	if {$armies > 0} {set commandline "$commandline -armies $armies"}
+	if {$militia > 0} {set commandline "$commandline -militia $militia"}
+
+	# guns & para
+	if {$guns_range > 0} {set commandline "$commandline -guns $guns_range -guns_cost $guns_cost -guns_damage $guns_damage"}
+	if {$para_range > 0} {set commandline "$commandline -para $para_range -para_cost $para_cost -para_damage $para_damage"}
+
+	if {$terrain_type == "Hills"} {set commandline "$commandline -hills $terrain_density"}
+	if {$terrain_type == "Forest"} {set commandline "$commandline -forest $terrain_density"}
+	if {$sea > 0} {set commandline "$commandline -sea $sea"}
+
+	# building & scutteling bases 
+	if {$build == 1} {
+		set commandline "$commandline -build $build_segments -build_cost $build_cost"
+		if {$build_limit > 0} {set commandline "$commandline -build_limit $build_limit"}
+	}
+	if {$scuttle_segments > 0} {
+		set commandline "$commandline -scuttle $scuttle_segments -scuttle_cost $scuttle_cost"
+	}
+	# terrain altering
+	if {$dig > 0} {set commandline "$commandline -dig $dig -dig_cost $dig_cost"}
+	if {$fill > 0} {set commandline "$commandline -fill $fill -fill_cost $fill_cost"}
+
+	# seed
+	if {$seed > 0} {set commandline "$commandline -seed $seed"}
+
+	switch $victory_condition {
+		none {}
+		trad {set commandline "$commandline -win_trad -win_wait $victory_wait"}
+		army {set commandline "$commandline -win_army $victory_percent -win_wait $victory_wait"}
+		land {set commandline "$commandline -win_land $victory_percent -win_wait $victory_wait"}
+		time {set commandline "$commandline -win_timeout $victory_time -win_wait $victory_wait"}
+		pos {set commandline "$commandline -win_pos $victory_x $victory_y -win_wait $victory_wait"}			
+	}
+
+	for {set i 0} {$i < $nplayers} {incr i} {
+		if {$player_types($i) == "Human"} {
+			set commandline "$commandline -$colors($i) $displays($i)"
+		} elseif {$player_types($i) == "Computer1"} {
+			set commandline "$commandline -$colors($i) null -ai $i 1 $skills($i)"
+		} elseif {$player_types($i) == "Computer2"} {
+			set commandline "$commandline -$colors($i) null -ai $i 1 $skills($i)"
+		}
+	}
+	if {$scenario != "none" && $xbo_load == "after"} {set commandline "$commandline -options $scenario"}
+	return "$commandline $post_options"
+}
+
+proc start_customgame {} {
+	destroy .build .terrain .forces .map .others .guns .fight .dig
+	set commandline [gen_commandline]
+	#destroy .
+	#puts $commandline
+	wm iconify .
+	catch {eval "exec $commandline"}
+
+	wm deiconify .
+	#exit
+}
+
+# TODO: Bind tcl so that quit is called when window is destroyed
+proc quit {} {
+	global ambient_pid playwave
+	#exec $playwave ./snd/civ/gong10.wav &
+	#exec "kill" [lindex $ambient_pid 0]
+	exit
+}
+
+proc make_player {number} {
+	global player_types color_names ply_bg
+
+	frame .custom.frame$number -borderwidth 1 -relief groove -bg $ply_bg
+	label .custom.frame$number.label -text "Player $number" -bg $ply_bg
+
+	#set menuname [tk_optionMenu .custom.frame$number.player_type player_types($number) Human Computer]
+	#$menuname configure -postcommand "player_type_updated $number"
+
+	menubutton .custom.frame$number.player_type -text "$player_types($number)" -menu .custom.frame$number.player_type.menu \
+		-relief groove -borderwidth 1 -bg $ply_bg
+	menu .custom.frame$number.player_type.menu -tearoff 0 -bg $ply_bg
+	.custom.frame$number.player_type.menu add command -label "Human" -command \
+		"set player_types($number) Human; .custom.frame$number.player_type configure -text Human; player_updated $number"
+	.custom.frame$number.player_type.menu add command -label "Computer (Alg. 1)" -command \
+		"set player_types($number) Computer1; .custom.frame$number.player_type configure -text Computer1; player_updated $number"
+	.custom.frame$number.player_type.menu add command -label "Computer (Alg. 2)" -command \
+		"set player_types($number) Computer2; .custom.frame$number.player_type configure -text Computer2; player_updated $number"
+
+	#entry .custom.frame$number.color -textvariable colors($number)
+	set menuname [eval "tk_optionMenu .custom.frame$number.color colors($number) $color_names"]
+	.custom.frame$number.color configure -bg $ply_bg
+	$menuname configure -bg $ply_bg
+
+	pack .custom.frame$number -side top -fill x
+    pack .custom.frame$number.label -side left
+    pack .custom.frame$number.player_type -side left -pady 2 -padx 2
+    pack .custom.frame$number.color -side left
+
+	player_updated $number
+}
+
+proc player_updated {number} {
+	global player_types displays skills ply_bg
+
+	destroy .custom.frame$number.display
+	destroy .custom.frame$number.skill
+	destroy .custom.frame$number.label2
+
+	if {$player_types($number) == "Human"} {
+		label .custom.frame$number.label2 -text "Display" -bg $ply_bg
+		entry .custom.frame$number.display -textvariable displays($number) -bg $ply_bg
+		pack .custom.frame$number.label2 -side left
+		pack .custom.frame$number.display -fill x
+    } elseif {$player_types($number) == "Computer1"} {
+		set skills($number) 0.5
+		label .custom.frame$number.label2 -text "Skill level" -bg $ply_bg
+		scale .custom.frame$number.skill -digits 2 -from 0 -to 5.0 -variable skills($number) -resolution "0.1" -orient horizontal -bg $ply_bg \
+			-troughcolor $ply_bg
+		pack .custom.frame$number.label2 -side left
+		pack .custom.frame$number.skill -fill x
+	} else {
+		set skills($number) 2
+		label .custom.frame$number.label2 -text "Skill level" -bg $ply_bg
+		scale .custom.frame$number.skill -digits 1 -from 1 -to 10 -variable skills($number) -resolution "1" -orient horizontal -bg $ply_bg \
+			-troughcolor $ply_bg
+		pack .custom.frame$number.label2 -side left
+		pack .custom.frame$number.skill -fill x				
+	}
+}
+
+proc recreate_players {number} {
+	global nplayers color_names
+
+	set nplayers $number
+	for {set i 0} {$i < [llength $color_names]} {incr i} {
+		destroy .custom.frame$i
+	}
+	for {set i 0} {$i < $nplayers} {incr i} {
+		make_player $i
+	}
+}
+
+proc labeled_scale {parent frame col text variable from to res} {
+	frame $parent.$frame -bg $col
+	pack $parent.$frame -side top -fill x
+	label $parent.$frame.label -text $text -bg $col
+	pack $parent.$frame.label -side left	
+	scale $parent.$frame.scale -from $from -to $to -resolution $res -variable $variable \
+		-orient horizontal -bg $col -troughcolor $col
+	pack $parent.$frame.scale -fill x
+}
+
+proc create_build_window {} {
+	global build_bg
+
+	destroy .build
+	toplevel .build -bg $build_bg
+	wm title .build "Build cities"
+	checkbutton .build.checkbox -variable build -bg $build_bg -text "Building bases allowed"
+    pack .build.checkbox -side top
+
+	labeled_scale .build segments $build_bg "Segments to complete" build_segments 1 16 1
+	labeled_scale .build cost $build_bg "Cost per segment" build_cost 1 50 1
+	labeled_scale .build limit $build_bg "Limit" build_limit 0 50 1
+	labeled_scale .build scuttle $build_bg "Scuttle" scuttle_segments  0 10 1
+	labeled_scale .build scuttle_cost $build_bg "Cost per segment" scuttle_cost  0 50 1
+}
+
+proc create_fight_window {} {
+	global fight_bg
+
+	destroy .fight
+	toplevel .fight -bg $fight_bg
+	wm title .fight "Movement & Combat"
+
+	labeled_scale .fight fight $fight_bg "Defensive vs. Offensive" fight 1 10 1
+	labeled_scale .fight move $fight_bg "Movement rate" move 1 10 1
+	labeled_scale .fight speed $fight_bg "Game speed" speed 1 10 1
+	labeled_scale .fight decay $fight_bg "Decay" decay 0 20 1
+	labeled_scale .fight maxval $fight_bg "Max troops per cell" maxval 1 50 1
+	labeled_scale .fight nospigot $fight_bg "No spigot" nospigot 2 20 1
+}
+
+proc create_terrain_window {} {
+	global terrain_bg
+
+	destroy .terrain
+	toplevel .terrain -bg $terrain_bg
+	wm title .terrain "Terrain"
+	frame .terrain.f0 -bg $terrain_bg
+	pack .terrain.f0 -side top -fill x
+	label .terrain.f0.label -text "Terrain type" -bg $terrain_bg
+	set menuname [tk_optionMenu .terrain.f0.type terrain_type "None" "Forest" "Hills"]
+	.terrain.f0.type configure -bg $terrain_bg
+	$menuname configure -bg $terrain_bg
+	pack .terrain.f0.label -side left
+	pack .terrain.f0.type -side left
+
+	frame .terrain.f1 -bg $terrain_bg
+	pack .terrain.f1 -side top -fill x
+	label .terrain.f1.label -text "Density" -bg $terrain_bg
+	scale .terrain.f1.density -digits 0 -from 0 -to 20 -variable terrain_density -resolution 1 \
+		-orient horizontal -bg $terrain_bg -troughcolor $terrain_bg
+	pack .terrain.f1.label -side left
+	pack .terrain.f1.density -fill x
+
+	frame .terrain.f2 -bg $terrain_bg
+	pack .terrain.f2 -side top -fill x
+	label .terrain.f2.label -text "Sea" -bg $terrain_bg
+	scale .terrain.f2.sea -digits 0 -from 0 -to 10 -variable sea -resolution 1 \
+		-orient horizontal -bg $terrain_bg -troughcolor $terrain_bg
+	pack .terrain.f2.label -side left
+	pack .terrain.f2.sea -fill x
+}
+
+proc create_forces_window {} {
+	global forces_bg
+
+	destroy .forces
+	toplevel .forces -bg $forces_bg
+	wm title .forces "Armies"
+							   
+	labeled_scale .forces rbases $forces_bg "Random bases" rbases 0 32 1
+	labeled_scale .forces range $forces_bg "Min range" rbase_range 0 24 1
+	labeled_scale .forces towns $forces_bg "Towns" towns 0 10 0.1
+	labeled_scale .forces armies $forces_bg "Armies" armies 0 50 1
+	labeled_scale .forces militia $forces_bg "Militia" militia 0 50 1
+}
+
+proc create_dig_window {} {
+	global dig_bg
+
+	destroy .dig
+	toplevel .dig -bg $dig_bg
+	wm title .dig "Alter terrain"
+
+	labeled_scale .dig dig $dig_bg "Dig (steps)" dig 0 10 1
+	labeled_scale .dig dig_cost $dig_bg "Cost" dig_cost 1 50 1
+	labeled_scale .dig fill $dig_bg "Fill (steps)" fill 0 10 1
+	labeled_scale .dig fill_cost $dig_bg "Cost" fill_cost 1 50 1
+}
+
+
+
+proc create_map_window {} {
+	global map_bg shape_names
+
+	destroy .map
+	toplevel .map -bg $map_bg
+	wm title .map "Map size & shape"
+	
+	frame .map.shape -bg $map_bg; pack .map.shape -side top -fill x
+	label .map.shape.label -text "Shape" -bg $map_bg; pack .map.shape.label -side left   
+	set name [eval "tk_optionMenu .map.shape.menu shape $shape_names]"]
+	$name configure -bg $map_bg
+	.map.shape.menu configure -bg $map_bg
+	pack .map.shape.menu -side left
+
+	labeled_scale .map width $map_bg "Width" width 4 96 1
+	labeled_scale .map height $map_bg "Height" height 4 96 1
+	labeled_scale .map cell $map_bg "Cell size" cell 16 64 1
+}
+
+proc create_others_window {} {
+	global others_bg
+
+	destroy .others
+	toplevel .others -bg $others_bg
+	wm title .others "Other options"
+
+	labeled_scale .others horizon $others_bg "Horizon" horizon 0 12 1
+	labeled_scale .others march $others_bg "March" march 0 6 0.1
+	labeled_scale .others farms $others_bg "Farms" farms 0 50 1
+}
+
+
+proc create_guns_window {} {
+	global guns_bg
+
+	destroy .guns
+	toplevel .guns -bg $guns_bg
+	wm title .guns "Artillery & Paratroopers"
+
+	labeled_scale .guns grange $guns_bg "Artillery range" guns_range 0 16 1	
+	labeled_scale .guns gcost $guns_bg "Cost" guns_cost 0 8 1	
+	labeled_scale .guns gdamage $guns_bg "Damage" guns_damage 0 8 1	
+	labeled_scale .guns prange $guns_bg "Paratrooper range" para_range 0 16 1	
+	labeled_scale .guns pcost $guns_bg "Cost" para_cost 0 8 1	
+	labeled_scale .guns pstrength $guns_bg "Strength" para_damage 0 8 1	
+
+}
+
+proc create_victory_conditions_window {} {
+	global vc_bg
+
+	destroy .vc
+	toplevel .vc -bg $vc_bg
+	wm title .vc "Victory conditions"
+
+	menubutton .vc.menubutton -text "Victory condition" -menu .vc.menubutton.menu \
+		-relief groove -borderwidth 1 -bg $vc_bg
+	menu .vc.menubutton.menu -tearoff 0 -bg $vc_bg
+	.vc.menubutton.menu add command -label "None" -command "update_vc none"
+	.vc.menubutton.menu add command -label "Traditional" -command "update_vc trad"
+	.vc.menubutton.menu add command -label "Army" -command "update_vc army"
+	.vc.menubutton.menu add command -label "Land" -command "update_vc land"
+	.vc.menubutton.menu add command -label "Timeout" -command "update_vc time"
+	.vc.menubutton.menu add command -label "Position" -command "update_vc pos"
+	pack .vc.menubutton -side top
+	labeled_scale .vc wait $vc_bg "Delay after victory" victory_wait 0 600 5
+}
+
+proc update_vc {vc} {
+	global victory_condition vc_bg
+	set victory_condition $vc
+
+	destroy .vc.percent .vc.time .vc.x .vc.y
+	switch $victory_condition {
+		none {}
+		trad {}
+		army {labeled_scale .vc percent $vc_bg "Army %" victory_percent 0 100 0.1}
+		land {labeled_scale .vc percent $vc_bg "Land %" victory_percent 0 100 0.1}
+		time {labeled_scale .vc time $vc_bg "Timeout" victory_timeout 0 3600 10}
+		pos {labeled_scale .vc x $vc_bg "X" victory_x 0 64 1;labeled_scale .vc y $vc_bg "Y" victory_y 0 64 1}
+	}
+
+}
+
+proc set_xbo {xbo} {
+	global scenario share description opts_bg xbo_load
+	set scenario $xbo
+	.custom.scenarios.button configure -text $xbo
+	destroy .description
+	if {$xbo != "none"} {
+		set description ""
+		catch [set description [exec grep "\#@" "$share/xbos/$xbo"]]		
+		if {$description != ""} {
+			toplevel .description 
+			wm title .description "Description of xbo"
+			.description configure -bg $opts_bg
+			message .description.msg -textvariable description -width 500 -bg $opts_bg
+			pack .description.msg
+		}
+		if {[catch [exec grep "\#LOAD_FIRST" "$share/xbos/$xbo"]] == 0} {
+			set xbo_load "before"
+		} else {
+			set xbo_load "after"
+		}
+	} 
+}
+
+
+proc menu_customgame {} {
+	global head_bg opts_bg buttons_bg ply_bg extras_bg
+	global boolean_opts scenarios color_names nplayers
+
+	destroy .head.title.buttons
+	destroy .custom .campaign
+	
+	frame .head.title.buttons -bg $head_bg; pack .head.title.buttons -side bottom
+	button .head.title.buttons.back -text "back" -command "menu_main" -bg $head_bg
+	button .head.title.buttons.start_customgame -text "start" -command "start_customgame" -bg $head_bg
+	pack .head.title.buttons.back -side left
+	pack .head.title.buttons.start_customgame -side left
+
+	frame .custom -bg $head_bg; pack .custom -side top -fill x
+	
+	# Boolean options
+	frame .custom.bopt -bg $opts_bg; pack .custom.bopt -side top
+	foreach opt $boolean_opts {
+		checkbutton .custom.bopt.$opt -text $opt -variable $opt -bg $opts_bg
+		pack .custom.bopt.$opt -side left 
+	}
+	
+	# Scenarios and colorschemes
+	frame .custom.scenarios -bg $opts_bg; pack .custom.scenarios -side top -fill x
+	label .custom.scenarios.l1 -text "xbo" -bg $opts_bg
+	pack .custom.scenarios.l1 -side left
+	menubutton .custom.scenarios.button -text "none" -menu .custom.scenarios.button.menu -relief groove -borderwidth 1 -bg $opts_bg
+	menu .custom.scenarios.button.menu -tearoff 0 -bg $opts_bg
+
+	foreach xbo $scenarios {
+		.custom.scenarios.button.menu add command -label $xbo -command "set_xbo $xbo"
+	}
+	pack .custom.scenarios.button -side left
+	radiobutton .custom.scenarios.before -text "before" -variable xbo_load -bg $opts_bg -value "before"
+	radiobutton .custom.scenarios.after -text "after" -variable xbo_load -bg $opts_bg -value "after"
+	pack .custom.scenarios.before .custom.scenarios.after -side left
+
+	# Buttons
+	frame .custom.buttons -bg $buttons_bg; pack .custom.buttons -side top
+
+	button .custom.buttons.map -text "Map size & shape" -command "create_map_window" -bg $buttons_bg
+	pack .custom.buttons.map -side left
+	button .custom.buttons.terrain -text "Terrain generation" -command "create_terrain_window"  -bg $buttons_bg
+	pack .custom.buttons.terrain -side left
+	button .custom.buttons.forces -text "Armies & bases" -command "create_forces_window"  -bg $buttons_bg
+	pack .custom.buttons.forces -side left
+	button .custom.buttons.bases -text "Building bases" -command "create_build_window"  -bg $buttons_bg
+	pack .custom.buttons.bases -side left
+	button .custom.buttons.guns -text "Artillery & Paratroopers" -command "create_guns_window"  -bg $buttons_bg
+	pack .custom.buttons.guns -side left
+	
+	frame .custom.buttons2 -bg $buttons_bg; pack .custom.buttons2 -side top
+	button .custom.buttons2.alterterrain -text "Alter terrain" -command "create_dig_window"  -bg $buttons_bg
+	pack .custom.buttons2.alterterrain -side left
+	button .custom.buttons2.fight -text "Movement & Combat" -command "create_fight_window"  -bg $buttons_bg
+	pack .custom.buttons2.fight -side left
+	button .custom.buttons2.vc -text "Victory conditions" -command "create_victory_conditions_window"  -bg $buttons_bg
+	pack .custom.buttons2.vc -side left
+	button .custom.buttons2.others -text "Other options" -command "create_others_window"  -bg $buttons_bg
+	pack .custom.buttons2.others -side left
+	
+	# Number of players
+	frame .custom.nplayers -bg $ply_bg; pack .custom.nplayers -side top -fill x
+	label .custom.nplayers.label -text "Number of players" -bg $ply_bg
+	scale .custom.nplayers.scale -digits 1 -from 2 -to [llength $color_names] -variable $nplayers -resolution "1" -orient horizontal -command "recreate_players" -bg $ply_bg -troughcolor $ply_bg
+	pack .custom.nplayers.label .custom.nplayers.scale -side left
+	recreate_players 2
+	
+	frame .custom.post -relief groove -borderwidth 1; pack .custom.post -side bottom -fill x
+	label .custom.post.label -text "Extra options (after)" -bg $extras_bg
+	entry .custom.post.entry -textvariable post_options -width 75 -bg $extras_bg
+	pack .custom.post.label -side left -fill x
+	pack .custom.post.entry -fill x
+
+	frame .custom.pre -relief groove -borderwidth 1; pack .custom.pre -side bottom -fill x
+	label .custom.pre.label -text "Extra options (before)" -bg $extras_bg
+	entry .custom.pre.entry -textvariable pre_options -width 75 -bg $extras_bg
+	pack .custom.pre.label -side left  -fill x
+	pack .custom.pre.entry -fill x
+	
+	frame .custom.seed -relief groove -borderwidth 1; pack .custom.seed -side bottom -fill x
+	label .custom.seed.label -text "Random seed" -bg $extras_bg
+	entry .custom.seed.entry -textvariable seed -width 8 -bg $extras_bg
+	pack .custom.seed.label -side left
+	pack .custom.seed.entry -fill x
+
+	set preview [gen_commandline]
+	frame .custom.preview -relief groove -borderwidth 1 -bg $extras_bg; pack .custom.preview -side bottom -fill x
+	button .custom.preview.button -text "preview" -command {set preview [gen_commandline]} -bg $extras_bg
+	message .custom.preview.entry -textvariable preview -width 500 -bg $extras_bg
+	pack .custom.preview.button -side left
+	pack .custom.preview.entry -side left -fill x 
+
+	recenter .
+}
+
+proc menu_main {} {
+	global head_bg campaigns
+
+	destroy .head.title.buttons
+	destroy .custom .campaign
+
+	frame .head.title.buttons -bg $head_bg; pack .head.title.buttons -side bottom
+	button .head.title.buttons.customgame -text "setup custom game" -command "menu_customgame" -bg $head_bg
+	pack .head.title.buttons.customgame -side left
+
+	foreach campaign $campaigns {
+		mainbutton_$campaign
+	}
+	
+	recenter .
+}
+
+proc recenter { wnd } {
+	bind $wnd <Configure> "recenter2 $wnd"
+}
+proc recenter2 { wnd } {
+	set width [winfo reqwidth $wnd]
+	set height [winfo reqheight $wnd]
+	set x [expr { ( [winfo vrootwidth  $wnd] - $width  ) / 2 }]
+	set y [expr { ( [winfo vrootheight $wnd] - $height ) / 2 }]	
+	wm geometry $wnd ${width}x${height}+${x}+${y}
+	#bind . <Configure> {}
+}
+
+############## MAIN
+
+. configure -bg $head_bg
+wm title . "XBattle launcer"
+
+# Main title
+image create photo images::logo1 -file "$share/images/logo1.gif"
+image create photo images::logo2 -file "$share/images/logo2.gif"
+frame .head -bg $head_bg; pack .head -side top -fill x
+
+label .head.logo1 -image images::logo1 -bg $head_bg
+pack .head.logo1 -side left -fill x
+label .head.logo2 -image images::logo2 -bg $head_bg
+	pack .head.logo2 -side right -fill x
+
+frame .head.title -bg $head_bg; pack .head.title -fill x
+set font1 [font create -family "Helvetica" -size 24]
+set font2 [font create -family "Helvetica" -size 14]
+label .head.title.label1 -text "XBattleAI" -bg $head_bg -font $font1
+label .head.title.label2 -text "v1.2.x" -bg $head_bg -font $font2
+pack .head.title.label1 -side top
+pack .head.title.label2 -side top
+
+menu_main
+recenter .
+
+

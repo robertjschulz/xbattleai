@@ -1,0 +1,45 @@
+#@ Mountain Tribes
+#@
+#@ You /love/ high mountains. You want to build more of them.
+#@ You also want to build cities in the highest mountains.
+#@ Build many cities, using `b', and when you can no longer build new cities,
+#@ capure them from your enemy, loot them for goods using `s' and put them
+#@ up again. Fill up the seas to get away from your continent, and rule
+#@ the world.
+#@
+#@ You need to use the manage functions in this game.
+#@ Also a game can last very long, because of the exessive filling.
+
+-hills 7
+-hill_tones 5
+-peaks 10
+-sea 6
+-wrap
+-hex
+-area
+-attack
+-rbases 3
+-rbase_range 4
+-towns 2
+-guns 3
+-para 3
+-guns_cost 2
+-localmap
+-horizon 2
+-move 7
+-board 20
+-boardx 28
+-cell 32
+-fill
+-dig
+-decay 1
+-manage
+-build 10
+-build_limit 5
+-repeat
+-march 5
+-scuttle
+-scuttle_cost 1
+-nospigot 13
+-reserve
+-hidden

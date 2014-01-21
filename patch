@@ -1,0 +1,46 @@
+--- /export/vitel1/yann/src/xbattleai/gauntletCampaign.in  Tue Oct 15 17:51:59 2002
++++ gauntletCampaign.in    Wed Oct 16 11:24:23 2002
+@@ -84,8 +84,8 @@
+ 
+ #buffer for awk exporting variable
+ #(that's the only method I found $#¹&#!!!!!)
+-touch /tmp/xbBuffer
+-chmod a+rw /tmp/xbBuffer
++touch /tmp/xbBuffer.$$
++chmod a+rw /tmp/xbBuffer.$$
+ 
+ #set cell sizes
+ big_cell=$cell_size
+@@ -105,16 +105,16 @@
+ #main loop
+ while [ $current -ne $victory -a $current -ne $defeat ]
+ do
+-gawk -v cu=$current '$0 ~ ("xbnextwin" cu "="){print $2 > "/tmp/xbBuffer"}' "${dat_file}"
+-nextwin=`cat /tmp/xbBuffer`
+-gawk -v cu=$current '$0 ~ ("xbcell" cu "="){print $2 > "/tmp/xbBuffer"}' "${dat_file}"
+-cell_size=`cat /tmp/xbBuffer`
+-gawk -v cu=$current '$0 ~ ("xbnextlost" cu "="){print $4 > "/tmp/xbBuffer"}' "${dat_file}"
+-nextlost=`cat /tmp/xbBuffer`
+-gawk -v cu=$current '$0 ~ ("xblevel" cu "="){print $2 > "/tmp/xbBuffer"}' "${dat_file}"
+-level=`cat /tmp/xbBuffer`
+-gawk -v cu=$current '$0 ~ ("xboption" cu "="){sub($1,"",$0);print $0 > "/tmp/xbBuffer"}' "${dat_file}"
+-options=`cat /tmp/xbBuffer`
++gawk -v cu=$current '$0 ~ ("xbnextwin" cu "="){print $2 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
++nextwin=`cat /tmp/xbBuffer.$$`
++gawk -v cu=$current '$0 ~ ("xbcell" cu "="){print $2 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
++cell_size=`cat /tmp/xbBuffer.$$`
++gawk -v cu=$current '$0 ~ ("xbnextlost" cu "="){print $4 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
++nextlost=`cat /tmp/xbBuffer.$$`
++gawk -v cu=$current '$0 ~ ("xblevel" cu "="){print $2 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
++level=`cat /tmp/xbBuffer.$$`
++gawk -v cu=$current '$0 ~ ("xboption" cu "="){sub($1,"",$0);print $0 > "'/tmp/xbBuffer.$$'"}' "${dat_file}"
++options=`cat /tmp/xbBuffer.$$`
+ gawk -v cu=$current -f "${interp}" "${dat_file}"
+ 
+ if [ "$message" != "null" ]
+@@ -197,4 +197,4 @@
+ \tAnd until then try again to defeat the first invasion wave!\n"
+ fi
+ 
+-rm -f /tmp/xbBuffer
++rm -f /tmp/xbBuffer.$$

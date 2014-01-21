@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "This is a small example of parameters that can be used"
+echo "for XBattleAI for a beginner."
+
+echo "You are blue.  Green and red are attacking."
+
+exec xbattle -red you -green you -blue me -ai 0 1 0.5 -ai 1 1 0.5 -rbases 3 -hex -boardx 12 -boardy 10 -seed 12 -farms 20 -sea 3 -hills 5

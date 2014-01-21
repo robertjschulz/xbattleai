@@ -1,0 +1,10 @@
+-blue :0.0
+-red null
+-repeat
+-attack
+-reserve
+-hills 25
+-hill_tones 5
+-hill_color 4 91 68 0
+-forest 3
+-forest_tones 5

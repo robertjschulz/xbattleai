@@ -1,0 +1,44 @@
+#@ Polar Nomads
+#@
+#@ You run a tribe of nomads living in tent camps in a arctic region.
+#@ The tent camps can very easily be dismounted using `s',
+#@ and put up again wherever you have some people using `b'.
+#@ Remember that it is very cold, and your people will freeze to death very
+#@ quickly when away from the camp. Therefore it is wise to move the tents
+#@ along with your forces.
+#@
+#@ You start with 4 tent camps. To get more you must capture them from
+#@ your enemy. 
+#@
+#@ You also have scouts, use 'p' to throw of a scout in a direction.
+
+-hex
+-hills 20
+-hill_tones 5
+-hill_color 0 230 250 255
+-hill_color 4 100 100 120
+-peak_bias 0.1
+-sea 3
+-no_forest
+-attack
+-area
+-rbases 4
+-cell 35
+-board 18
+-boardx 25
+-horizon 3
+-guns 2
+-para 4
+-guns_cost 8
+-guns_damage 4
+-para_cost 6
+-para_damage 1
+-decay 5
+-map
+-build_limit 0
+-build 1
+-scuttle
+-scuttle_cost 0
+-build_cost 3
+-manage
+-hidden

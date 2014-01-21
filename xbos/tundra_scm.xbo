@@ -1,0 +1,13 @@
+#LOAD_FIRST
+#@
+#@ A color scheme for artic regions
+#@
+
+-hills 0
+-hill_tones 5
+-hill_color 0 250 250 255
+-hill_color 4 200 200 210
+-peak_bias 0.8
+-no_sea
+-no_forest
+-color mark 0 0 200
