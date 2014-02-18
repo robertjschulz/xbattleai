@@ -2,7 +2,7 @@
 # Generated automatically by configure.
 # Run this file to recreate the current configuration.
 # This directory was configured as follows,
-# on host fenrir:
+# on host asus:
 #
 # ./configure 
 #
@@ -36,9 +36,9 @@ sed 's/%@/@@/; s/@%/@@/; s/%g$/@g/; /@g$/s/[\\&%]/\\&/g;
 /^[ 	]*VPATH[ 	]*=[^:]*$/d
 
 s%@SHELL@%/bin/sh%g
-s%@CFLAGS@% -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include  -I/usr/X11R6/include%g
-s%@CPPFLAGS@% -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include%g
-s%@CXXFLAGS@% -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include%g
+s%@CFLAGS@%-g -O2  -I/usr/X11R6/include%g
+s%@CPPFLAGS@%%g
+s%@CXXFLAGS@%%g
 s%@FFLAGS@%%g
 s%@DEFS@%-DHAVE_CONFIG_H%g
 s%@LDFLAGS@%%g

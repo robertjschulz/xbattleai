@@ -33,6 +33,7 @@ INSTALL_PROGRAM	= ${INSTALL}
 INSTALL_DATA	= ${INSTALL} -m 644
 INSTALL_SCRIPT	= ${INSTALL_PROGRAM}
 INSTALL_DIRS	= /usr/bin/install -c -d -m 755
+INSTALL_DESKTOP = desktop-file-install
 
 #WARNFLAGS	= -pedantic -Wall
 #WARNFLAGS	= -pedantic -Wall -Wpointer-arith -Wwrite-strings -Wstrict-prototypes -Wmissing-declarations -Wshadow -Wcast-qual -Wcast-align -Wmissing-prototypes -Waggregate-return -Wnested-externs
@@ -43,9 +44,9 @@ DEF_FILES	= -DDEFAULT_XBO_DIR=\"${XBO_DIR}\" \
 				  -DDEFAULT_SND_DIR=\"${SND_DIR}\"
 DEFINES		= -DHAVE_CONFIG_H  -DWITH_HILLS_AND_FOREST -DWITH_BASE_SIDE -DWITH_AI2_LEARNING -DWITH_SOUND ${DEF_FILES}
 
-CPPFLAGS	= ${DEFINES}  -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include
-COMPILE		= gcc  -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include  -I/usr/X11R6/include ${WARNFLAGS} ${CPPFLAGS} -c
-LINK		= gcc  -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/guile/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include -I/opt/bmrt/include -I/opt/kde3.1beta1/include -I/opt/kde3.1rc3/include -I/opt/qt3.1/include  -I/usr/X11R6/include 
+CPPFLAGS	= ${DEFINES} 
+COMPILE		= gcc -g -O2  -I/usr/X11R6/include ${WARNFLAGS} ${CPPFLAGS} -c
+LINK		= gcc -g -O2  -I/usr/X11R6/include 
 LINK_LIBS	= -lX11 -lpthread -lresolv -lnsl -lm  -L/usr/X11R6/lib 
 
 
@@ -284,6 +285,12 @@ install-share:
 	    ${INSTALL_DATA} $$p ${GC_DIR}/gauntlet_levels; \
 	  else :; fi; \
 	done
+	@list='${SRC_DIR}/desktop/*'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_DESKTOP} $$p ${DSK_DIR}"; \
+	    ${INSTALL_DESKTOP} $$p; \
+	  else :; fi; \
+	done
 
 
 .PHONY:	depend
@@ -295,4 +302,5 @@ depend:
 # Tell version [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
+
 

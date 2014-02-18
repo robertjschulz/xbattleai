@@ -1,0 +1,15 @@
+[Desktop Entry]
+Categories=Game;
+Exec=/usr/local/bin/xbattle.tcl
+GenericName=xbattleAI
+Icon=/usr/local/share/xbattle/images/xbattle.xpm
+MimeType=
+Name=xbattleAI
+StartupNotify=false
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=

@@ -32,6 +32,7 @@ INSTALL_PROGRAM	= @INSTALL_PROGRAM@
 INSTALL_DATA	= @INSTALL_DATA@
 INSTALL_SCRIPT	= @INSTALL_SCRIPT@
 INSTALL_DIRS	= @INSTALL@ -d -m 755
+INSTALL_DESKTOP = desktop-file-install
 
 #WARNFLAGS	= -pedantic -Wall
 #WARNFLAGS	= -pedantic -Wall -Wpointer-arith -Wwrite-strings -Wstrict-prototypes -Wmissing-declarations -Wshadow -Wcast-qual -Wcast-align -Wmissing-prototypes -Waggregate-return -Wnested-externs
@@ -281,6 +282,12 @@ install-share:
 	  if test -f $$p; then \
 	    ${ECHO} "${INSTALL_DATA} $$p ${GC_DIR}/gauntlet_levels"; \
 	    ${INSTALL_DATA} $$p ${GC_DIR}/gauntlet_levels; \
+	  else :; fi; \
+	done
+	@list='${SRC_DIR}/desktop/*'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} "${INSTALL_DESKTOP} $$p ${DSK_DIR}"; \
+	    ${INSTALL_DESKTOP} $$p; \
 	  else :; fi; \
 	done
 
