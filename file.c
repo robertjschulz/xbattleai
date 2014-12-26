@@ -23,6 +23,7 @@
 #include "int.h"
 #include "file.h"
 
+#include <stdint.h>
 
 /** FIXME: this is not portable and the interface is ugly - rewrite. **/
 int f_read(void *outptr, size_t size, size_t nmemb, FILE *stream)
@@ -61,7 +62,7 @@ int f_read(void *outptr, size_t size, size_t nmemb, FILE *stream)
     case 4:
       for (num=0; num<count; num++)
       {
-        ((unsigned long *)outptr)[num] = buff_to_uint32(tmp, &pos);
+        ((uint32_t *)outptr)[num] = buff_to_uint32(tmp, &pos);
       }
       break;
   }

@@ -516,7 +516,7 @@ proc set_xbo {xbo} {
 			message .description.msg -textvariable description -width 500 -bg $opts_bg
 			pack .description.msg
 		}
-		if {[catch [exec grep "\#LOAD_FIRST" "$share/xbos/$xbo"]] == 0} {
+		if {[catch { exec grep "\#LOAD_FIRST" "$share/xbos/$xbo" } msg ] == 0} {
 			set xbo_load "before"
 		} else {
 			set xbo_load "after"
@@ -653,7 +653,7 @@ proc recenter2 { wnd } {
 ############## MAIN
 
 . configure -bg $head_bg
-wm title . "XBattle launcer"
+wm title . "XBattle launcher"
 
 # Main title
 image create photo images::logo1 -file "$share/images/logo1.gif"

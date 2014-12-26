@@ -8,6 +8,7 @@
 #include "extern.h"
 
 #include "file.h"
+#include <assert.h>
 
 
 /** File local prototypes **/
@@ -188,6 +189,9 @@ load_board_header (FILE * fp)
 
   /** Load the set of header information **/
 
+  assert(sizeof(short) == 2);
+  assert(sizeof(int) == 4);
+  
   f_read (&Config->board_x_size,	sizeof(short), 1, fp);
   f_read (&Config->board_y_size,	sizeof(short), 1, fp);
   f_read (&Config->level_min,	sizeof(int), 1, fp);
